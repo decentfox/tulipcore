@@ -20,7 +20,6 @@
 from greentest import TestCase, main, tcp_listener
 import gevent
 from gevent import socket
-from gevent.hub import PY3
 
 
 class TestGreenIo(TestCase):
@@ -36,13 +35,8 @@ class TestGreenIo(TestCase):
                 conn.close()
                 fd.write('hello\n')
                 fd.close()
-                if PY3:
-                    self.assertRaises(ValueError, fd.write, 'a')
-                    self.assertRaises(ValueError, fd.flush)
-                else:
-                    r = fd.write('a')
-                    assert r is None, r
-                    self.assertRaises(AttributeError, fd.flush)
+                self.assertRaises(ValueError, fd.write, 'a')
+                self.assertRaises(ValueError, fd.flush)
                 self.assertRaises(socket.error, conn.send, b'b')
             finally:
                 listener.close()
@@ -57,13 +51,8 @@ class TestGreenIo(TestCase):
                 fd.close()
                 conn.send(b'\n')
                 conn.close()
-                if PY3:
-                    self.assertRaises(ValueError, fd.write, 'a')
-                    self.assertRaises(ValueError, fd.flush)
-                else:
-                    r = fd.write('a')
-                    assert r is None, r
-                    self.assertRaises(AttributeError, fd.flush)
+                self.assertRaises(ValueError, fd.write, 'a')
+                self.assertRaises(ValueError, fd.flush)
                 self.assertRaises(socket.error, conn.send, b'b')
             finally:
                 listener.close()
@@ -100,13 +89,8 @@ class TestGreenIo(TestCase):
                 conn.write('hello\n')
                 sock.close()
                 conn.close()
-                if PY3:
-                    self.assertRaises(ValueError, conn.write, 'a')
-                    self.assertRaises(ValueError, conn.flush)
-                else:
-                    r = conn.write('a')
-                    assert r is None, r
-                    self.assertRaises(AttributeError, conn.flush)
+                self.assertRaises(ValueError, conn.write, 'a')
+                self.assertRaises(ValueError, conn.flush)
             finally:
                 listener.close()
 

@@ -2,7 +2,7 @@
 import os
 import sys
 from _socket import getservbyname, getaddrinfo, gaierror, error
-from gevent.hub import Waiter, get_hub, string_types, text_type, reraise, PY3
+from gevent.hub import Waiter, get_hub, string_types, text_type, reraise
 from gevent.socket import AF_UNSPEC, AF_INET, AF_INET6, SOCK_STREAM, SOCK_DGRAM, SOCK_RAW, AI_NUMERICHOST, EAI_SERVICE, AI_PASSIVE
 from gevent.ares import channel, InvalidIP
 
@@ -52,16 +52,10 @@ class Resolver(object):
         return self.gethostbyname_ex(hostname, family)[-1][0]
 
     def gethostbyname_ex(self, hostname, family=AF_INET):
-        if PY3:
-            if isinstance(hostname, str):
-                hostname = hostname.encode('idna')
-            elif not isinstance(hostname, (bytes, bytearray)):
-                raise TypeError('Expected es(idna), not %s' % type(hostname).__name__)
-        else:
-            if isinstance(hostname, text_type):
-                hostname = hostname.encode('ascii')
-            elif not isinstance(hostname, str):
-                raise TypeError('Expected string, not %s' % type(hostname).__name__)
+        if isinstance(hostname, str):
+            hostname = hostname.encode('idna')
+        elif not isinstance(hostname, (bytes, bytearray)):
+            raise TypeError('Expected es(idna), not %s' % type(hostname).__name__)
 
         while True:
             ares = self.ares
@@ -197,16 +191,10 @@ class Resolver(object):
                     raise
 
     def _gethostbyaddr(self, ip_address):
-        if PY3:
-            if isinstance(ip_address, str):
-                ip_address = ip_address.encode('idna')
-            elif not isinstance(ip_address, (bytes, bytearray)):
-                raise TypeError('Expected es(idna), not %s' % type(ip_address).__name__)
-        else:
-            if isinstance(ip_address, text_type):
-                ip_address = ip_address.encode('ascii')
-            elif not isinstance(ip_address, str):
-                raise TypeError('Expected string, not %s' % type(ip_address).__name__)
+        if isinstance(ip_address, str):
+            ip_address = ip_address.encode('idna')
+        elif not isinstance(ip_address, (bytes, bytearray)):
+            raise TypeError('Expected es(idna), not %s' % type(ip_address).__name__)
 
         waiter = Waiter(self.hub)
         try:
@@ -242,8 +230,6 @@ class Resolver(object):
             raise TypeError('getnameinfo() argument 1 must be a tuple')
 
         address = sockaddr[0]
-        if not PY3 and isinstance(address, text_type):
-            address = address.encode('ascii')
 
         if not isinstance(address, string_types):
             raise TypeError('sockaddr[0] must be a string, not %s' % type(address).__name__)

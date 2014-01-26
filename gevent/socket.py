@@ -11,14 +11,8 @@ For convenience, exceptions (like :class:`error <socket.error>` and :class:`time
 as well as the constants from :mod:`socket` module are imported into this module.
 """
 
-import sys
-from gevent.hub import PY3
 
-
-if PY3:
-    from gevent import _socket3 as _source
-else:
-    from gevent import _socket2 as _source
+from gevent import _socket3 as _source
 
 
 for key in _source.__dict__:
@@ -64,8 +58,6 @@ def create_connection(address, timeout=_GLOBAL_DEFAULT_TIMEOUT, source_address=N
             # and the next bind() fails (see test__socket.TestCreateConnection)
             # that does not happen with regular sockets though, because _socket.socket.connect() is a built-in.
             # this is similar to "getnameinfo loses a reference" failure in test_socket.py
-            if not PY3:
-                sys.exc_clear()
             if sock is not None:
                 sock.close()
             err[0] = ex

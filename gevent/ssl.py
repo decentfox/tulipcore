@@ -1,10 +1,4 @@
-from gevent.hub import PY3
-
-
-if PY3:
-    from gevent import _ssl3 as _source
-else:
-    from gevent import _ssl2 as _source
+from gevent import _ssl3 as _source
 
 
 for key in _source.__dict__:

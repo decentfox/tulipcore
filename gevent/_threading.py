@@ -14,7 +14,6 @@ import heapq
 from time import time as _time, sleep as _sleep
 
 from gevent import monkey
-from gevent.hub import PY3
 
 
 __all__ = ['Condition',
@@ -28,7 +27,7 @@ __all__ = ['Condition',
            'stack_size']
 
 
-thread_name = '_thread' if PY3 else 'thread'
+thread_name = '_thread'
 start_new_thread, Lock, get_ident, local, stack_size = monkey.get_original(thread_name, [
     'start_new_thread', 'allocate_lock', 'get_ident', '_local', 'stack_size'])
 

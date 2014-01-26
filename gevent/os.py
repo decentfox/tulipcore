@@ -6,8 +6,7 @@ is used.
 
 
 import os
-import sys
-from gevent.hub import get_hub, reinit, PY3
+from gevent.hub import get_hub, reinit
 import errno
 
 EAGAIN = getattr(errno, 'EAGAIN', 11)
@@ -51,8 +50,6 @@ if fcntl:
             except OSError as e:
                 if e.errno not in ignored_errors:
                     raise
-                if not PY3:
-                    sys.exc_clear()
             if hub is None:
                 hub = get_hub()
                 event = hub.loop.io(fd, 1)
@@ -71,8 +68,6 @@ if fcntl:
             except OSError as e:
                 if e.errno not in ignored_errors:
                     raise
-                if not PY3:
-                    sys.exc_clear()
             if hub is None:
                 hub = get_hub()
                 event = hub.loop.io(fd, 2)

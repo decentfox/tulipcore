@@ -2,7 +2,6 @@ import os
 from gevent._fileobjectcommon import FileObjectClosed
 from gevent.hub import get_hub
 from gevent.hub import integer_types
-from gevent.hub import PY3
 from gevent.lock import Semaphore, DummySemaphore
 
 
@@ -22,10 +21,7 @@ if fcntl is None:
     __all__.remove('FileObjectPosix')
 
 else:
-    if PY3:
-        from gevent._fileobject3 import FileObjectPosix
-    else:
-        from gevent._fileobject2 import FileObjectPosix
+    from gevent._fileobject3 import FileObjectPosix
 
 
 class FileObjectThread(object):
@@ -96,15 +92,12 @@ class FileObjectThread(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         line = self.readline()
         if line:
             return line
         raise StopIteration
 
-    if PY3:
-        __next__ = next
-        del next
 
 try:
     FileObject = FileObjectPosix

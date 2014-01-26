@@ -1,7 +1,7 @@
 # Copyright (c) 2009-2012 Denis Bilenko. See LICENSE for details.
 
 import sys
-from gevent.hub import greenlet, getcurrent, get_hub, GreenletExit, Waiter, PY3, iwait, wait
+from gevent.hub import greenlet, getcurrent, get_hub, GreenletExit, Waiter, iwait, wait
 from gevent.timeout import Timeout
 from collections import deque
 
@@ -89,12 +89,8 @@ class Greenlet(greenlet):
         # needed by killall
         return self.parent.loop
 
-    if PY3:
-        def __bool__(self):
-            return self._start_event is not None and self._exception is _NONE
-    else:
-        def __nonzero__(self):
-            return self._start_event is not None and self._exception is _NONE
+    def __bool__(self):
+        return self._start_event is not None and self._exception is _NONE
 
     @property
     def started(self):
@@ -295,8 +291,7 @@ class Greenlet(greenlet):
                 self.unlink(switch)
                 if ex is not t:
                     raise
-                if PY3:
-                    ex.__traceback__ = None
+                ex.__traceback__ = None
             except:
                 self.unlink(switch)
                 raise
@@ -309,8 +304,7 @@ class Greenlet(greenlet):
 
     def _report_error(self, exc_info):
         exception = exc_info[1]
-        if PY3:
-            exception.__traceback__ = None
+        exception.__traceback__ = None
         if isinstance(exception, GreenletExit):
             self._report_result(exception)
             return
@@ -452,10 +446,7 @@ def killall(greenlets, exception=GreenletExit, block=True, timeout=None):
         loop.run_callback(_killall, greenlets, exception)
 
 
-if PY3:
-    _meth_self = "__self__"
-else:
-    _meth_self = "im_self"
+_meth_self = "__self__"
 
 
 def getfuncname(func):

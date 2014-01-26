@@ -14,7 +14,7 @@ except ImportError:
 from gevent import socket
 import gevent
 from gevent.server import StreamServer
-from gevent.hub import GreenletExit, PY3, reraise, string_types
+from gevent.hub import GreenletExit, reraise, string_types
 
 
 __all__ = ['WSGIHandler', 'WSGIServer']
@@ -158,15 +158,11 @@ class Input(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         line = self.readline()
         if not line:
             raise StopIteration
         return line
-
-    if PY3:
-        __next__ = next
-        del next
 
 
 try:
@@ -249,16 +245,11 @@ class WSGIHandler(object):
                 try:
                     # read out request data to prevent error: [Errno 104] Connection reset by peer
                     try:
-                        if PY3:
-                            super(socket.socket, self.socket).recv(16384)
-                        else:
-                            self.socket._sock.recv(16384)
+                        super(socket.socket, self.socket).recv(16384)
                     finally:
                         # sleep 0.001 to prevent error: [Errno 54] Connection reset by peer
                         gevent.sleep(0.001)
                         self.rfile.close()
-                        if not PY3:
-                            self.socket._sock.close()  # do not rely on garbage collection
                         self.socket.close()
                 except socket.error:
                     pass
@@ -382,8 +373,6 @@ class WSGIHandler(object):
         except socket.error as ex:
             # Broken pipe, connection reset by peer
             if ex.args[0] in (errno.EPIPE, errno.ECONNRESET):
-                if not PY3:
-                    sys.exc_clear()
                 return
             else:
                 raise

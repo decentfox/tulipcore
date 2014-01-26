@@ -26,28 +26,16 @@ __all__ = ['getcurrent',
            'Waiter']
 
 
-PY3 = sys.version_info[0] >= 3
+string_types = str,
+integer_types = int,
+text_type = str
+xrange = range
 
 
-if PY3:
-    string_types = str,
-    integer_types = int,
-    text_type = str
-    xrange = range
-
-    def reraise(tp, value, tb=None):
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
-
-else:
-    import __builtin__
-    string_types = __builtin__.basestring,
-    text_type = __builtin__.unicode
-    integer_types = (int, __builtin__.long)
-    xrange = __builtin__.xrange
-
-    from gevent._util_py2 import reraise
+def reraise(tp, value, tb=None):
+    if value.__traceback__ is not tb:
+        raise value.with_traceback(tb)
+    raise value
 
 
 if sys.version_info[0] <= 2:
@@ -325,7 +313,7 @@ class Hub(greenlet):
                     cb.stop()
 
     def print_exception(self, context, type, value, tb):
-        if PY3 and value is None:
+        if value is None:
             # print_exception() will fail in Python 3 if value is None
             traceback.print_exception(type, type(), tb)
         else:

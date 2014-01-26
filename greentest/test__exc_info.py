@@ -1,10 +1,6 @@
 import gevent
 import sys
 import greentest
-import six
-
-if not six.PY3:
-    sys.exc_clear()
 
 
 class ExpectedError(Exception):
@@ -46,16 +42,14 @@ class Test(greentest.TestCase):
             except Exception:
                 ex = sys.exc_info()[1]
                 assert ex is error, (ex, error)
-                if six.PY3:
-                    ex.__traceback__ = None
+                ex.__traceback__ = None
 
     def test2(self):
         timer = gevent.get_hub().loop.timer(0)
         timer.start(hello2)
         gevent.sleep(0.1)
         assert sys.exc_info() == (None, None, None), sys.exc_info()
-        if six.PY3:
-            expected_error.__traceback__ = None
+        expected_error.__traceback__ = None
 
 
 if __name__ == '__main__':

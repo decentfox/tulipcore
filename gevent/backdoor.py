@@ -24,12 +24,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import io
 import sys
 from code import InteractiveConsole
 
 from gevent import socket
 from gevent.greenlet import Greenlet
-from gevent.hub import PY3
 from gevent.server import StreamServer
 
 __all__ = ['BackdoorServer']
@@ -49,11 +49,8 @@ class SocketConsole(Greenlet):
     def __init__(self, locals, conn, banner=None):
         Greenlet.__init__(self)
         self.locals = locals
-        if PY3:
-            self.desc = TTYRWPair(conn.makefile('rwb'), line_buffering=True)
-            conn.close()
-        else:
-            self.desc = _fileobject(conn)
+        self.desc = TTYRWPair(conn.makefile('rwb'), line_buffering=True)
+        conn.close()
         self.banner = banner
 
     def finalize(self):
@@ -83,10 +80,7 @@ class SocketConsole(Greenlet):
                 console.locals["__builtins__"] = __builtin__
                 console.interact(banner=self.banner)
             except SystemExit as ex:  # raised by quit()
-                if PY3:
-                    ex.__traceback__ = None
-                else:
-                    sys.exc_clear()
+                ex.__traceback__ = None
         finally:
             self.switch_out()
             self.finalize()
@@ -107,26 +101,9 @@ class BackdoorServer(StreamServer):
         pass
 
 
-if PY3:
-    import io
-
-    class TTYRWPair(io.TextIOWrapper):
-        def isatty(self, *args, **kwargs):
-            return True
-else:
-    class _fileobject(socket._fileobject):
-
-        def write(self, data):
-            self._sock.sendall(data)
-
-        def isatty(self):
-            return True
-
-        def flush(self):
-            pass
-
-        def readline(self, *a):
-            return socket._fileobject.readline(self, *a).replace("\r\n", "\n")
+class TTYRWPair(io.TextIOWrapper):
+    def isatty(self, *args, **kwargs):
+        return True
 
 
 if __name__ == '__main__':

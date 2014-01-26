@@ -2,7 +2,7 @@
 import os
 import sys
 from _socket import getservbyname, getaddrinfo, gaierror, error
-from gevent.hub import Waiter, get_hub, string_types, text_type, reraise
+from gevent.hub import Waiter, get_hub, text_type, reraise
 from gevent.socket import AF_UNSPEC, AF_INET, AF_INET6, SOCK_STREAM, SOCK_DGRAM, SOCK_RAW, AI_NUMERICHOST, EAI_SERVICE, AI_PASSIVE
 from gevent.ares import channel, InvalidIP
 
@@ -73,7 +73,7 @@ class Resolver(object):
 
     def _lookup_port(self, port, socktype):
         socktypes = []
-        if isinstance(port, string_types):
+        if isinstance(port, str):
             try:
                 port = int(port)
             except ValueError:
@@ -231,7 +231,7 @@ class Resolver(object):
 
         address = sockaddr[0]
 
-        if not isinstance(address, string_types):
+        if not isinstance(address, str):
             raise TypeError('sockaddr[0] must be a string, not %s' % type(address).__name__)
 
         port = sockaddr[1]

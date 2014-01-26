@@ -38,7 +38,6 @@ import greentest
 import gevent
 from gevent import socket
 from gevent import pywsgi
-from gevent.hub import string_types
 from gevent.hub import text_type
 from gevent.pywsgi import Input
 
@@ -66,14 +65,14 @@ class ConnectionClosed(Exception):
 
 def read_headers(fd):
     response_line = fd.readline()
-    if not isinstance(response_line, string_types):
+    if not isinstance(response_line, str):
         response_line = response_line.decode('iso-8859-1')
     if not response_line:
         raise ConnectionClosed
     headers = {}
     while True:
         line = fd.readline()
-        if not isinstance(line, string_types):
+        if not isinstance(line, str):
             line = line.decode('iso-8859-1')
         line = line.strip()
         if not line:

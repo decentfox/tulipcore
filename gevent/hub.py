@@ -26,7 +26,6 @@ __all__ = ['getcurrent',
            'Waiter']
 
 
-string_types = str,
 integer_types = int,
 text_type = str
 
@@ -195,7 +194,7 @@ def _import(path):
             except ImportError:
                 pass
         return _import(path[-1])
-    if not isinstance(path, string_types):
+    if not isinstance(path, str):
         return path
     if '.' not in path:
         raise ImportError("Cannot import %r (required format: [path/][package.]module.class)" % path)
@@ -222,7 +221,7 @@ def _import(path):
 
 def config(default, envvar):
     result = os.environ.get(envvar) or default
-    if isinstance(result, string_types):
+    if isinstance(result, str):
         return result.split(',')
     return result
 

@@ -5,7 +5,7 @@ import _socket
 import errno
 from gevent.greenlet import Greenlet, getfuncname
 from gevent.event import Event
-from gevent.hub import string_types, integer_types, get_hub
+from gevent.hub import integer_types, get_hub
 
 
 __all__ = ['BaseServer']
@@ -309,7 +309,7 @@ def _parse_address(address):
         if ':' in address[0]:
             return _socket.AF_INET6, address
         return _socket.AF_INET, address
-    elif isinstance(address, string_types):
+    elif isinstance(address, str):
         if ':' in address:
             host, port = address.rsplit(':', 1)
             family, host = _extract_family(host)

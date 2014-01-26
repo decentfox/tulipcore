@@ -13,13 +13,6 @@ __all__ = ['patch_all',
            'patch_sys']
 
 
-if sys.version_info[0] >= 3:
-    string_types = str,
-else:
-    import __builtin__
-    string_types = __builtin__.basestring
-
-
 # maps module name -> attribute name -> original item
 # e.g. "time" -> "sleep" -> built-in function sleep
 saved = {}
@@ -40,7 +33,7 @@ def _get_original(name, items):
 
 
 def get_original(name, item):
-    if isinstance(item, string_types):
+    if isinstance(item, str):
         return _get_original(name, [item])[0]
     else:
         return _get_original(name, item)

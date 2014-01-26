@@ -9,5 +9,4 @@ def reraise(tp, value, tb=None):
         raise value.with_traceback(tb)
     raise value
 
-string_types = str,
 text_type = str

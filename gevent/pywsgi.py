@@ -14,7 +14,7 @@ except ImportError:
 from gevent import socket
 import gevent
 from gevent.server import StreamServer
-from gevent.hub import GreenletExit, reraise, string_types
+from gevent.hub import GreenletExit, reraise
 
 
 __all__ = ['WSGIHandler', 'WSGIServer']
@@ -266,7 +266,7 @@ class WSGIHandler(object):
         return True
 
     def read_request(self, raw_requestline):
-        if not isinstance(raw_requestline, string_types):
+        if not isinstance(raw_requestline, str):
             raw_requestline = raw_requestline.decode('iso-8859-1')
         self.requestline = raw_requestline.rstrip()
         words = self.requestline.split()

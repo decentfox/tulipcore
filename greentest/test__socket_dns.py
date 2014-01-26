@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import six
 import re
 import greentest
 import socket
@@ -123,7 +122,7 @@ def relaxed_is_equal(a, b):
         return False
     if a == b:
         return True
-    if isinstance(a, six.string_types):
+    if isinstance(a, str):
         return compare_relaxed(a, b)
     if len(a) != len(b):
         return False
@@ -307,7 +306,7 @@ class TestFamily(TestCase):
             result = function(*args)
             raise AssertionError('%s: Expected to raise %s, instead returned %r' % (function, error, result))
         except Exception as ex:
-            if isinstance(error, six.string_types):
+            if isinstance(error, str):
                 repr_error = error
             else:
                 repr_error = repr(error)

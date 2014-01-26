@@ -5,7 +5,7 @@ import gc
 import signal
 import traceback
 from gevent.event import AsyncResult
-from gevent.hub import get_hub, linkproxy, sleep, getcurrent, integer_types, string_types
+from gevent.hub import get_hub, linkproxy, sleep, getcurrent, integer_types
 from gevent.fileobject import FileObject
 from gevent.greenlet import Greenlet, joinall
 spawn = Greenlet.spawn
@@ -397,7 +397,7 @@ class Popen(object):
                            errread, errwrite):
             """Execute program (MS Windows version)"""
 
-            if not isinstance(args, string_types):
+            if not isinstance(args, str):
                 args = list2cmdline(args)
 
             # Process startup details
@@ -618,7 +618,7 @@ class Popen(object):
                            errread, errwrite):
             """Execute program (POSIX version)"""
 
-            if isinstance(args, string_types):
+            if isinstance(args, str):
                 args = [args]
             else:
                 args = list(args)

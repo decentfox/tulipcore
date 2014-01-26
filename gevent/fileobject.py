@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import os
 from gevent._fileobjectcommon import FileObjectClosed
 from gevent.hub import get_hub

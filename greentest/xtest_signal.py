@@ -10,7 +10,6 @@ Reproduced on my machine (Linux 3.0.0-16-generic) with backend epoll and select.
 
 With signalfd enabled (GEVENT_BACKEND=signalfd) it seems to work.
 """
-from __future__ import print_function
 import gevent
 from contextlib import closing
 import gc

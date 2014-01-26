@@ -1,4 +1,3 @@
-from __future__ import print_function
 from gevent import monkey; monkey.patch_all(subprocess=True)
 import sys
 import socket

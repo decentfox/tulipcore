@@ -1,4 +1,3 @@
-from __future__ import print_function
 import socket
 
 s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)

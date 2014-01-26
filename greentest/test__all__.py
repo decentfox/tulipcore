@@ -1,5 +1,4 @@
 """Check __all__, __implements__, __extensions__, __imports__ of the modules"""
-from __future__ import print_function
 import six
 import sys
 import unittest

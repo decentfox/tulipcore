@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-from __future__ import print_function
 import time
 from gevent import socket
 from gevent.server import StreamServer

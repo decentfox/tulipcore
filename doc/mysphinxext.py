@@ -1,4 +1,3 @@
-from __future__ import print_function
 from sphinx.ext.autodoc import cut_lines
 from sphinx.ext import intersphinx
 from docutils import nodes

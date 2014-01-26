@@ -5,7 +5,6 @@
 'dev' in __version__ should be replaced with a|b|rc|<empty string>
 """
 
-from __future__ import print_function
 import sys
 import os
 import re

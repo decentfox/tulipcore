@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 from gevent import core, signal
 loop = core.loop()

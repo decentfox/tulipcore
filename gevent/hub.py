@@ -1,6 +1,5 @@
 # Copyright (c) 2009-2012 Denis Bilenko. See LICENSE for details.
 
-from __future__ import absolute_import
 import sys
 import os
 import traceback

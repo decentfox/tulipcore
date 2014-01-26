@@ -1,4 +1,3 @@
-from __future__ import print_function
 import gevent
 # Loop of initial Hub is default loop.
 hub = gevent.get_hub()

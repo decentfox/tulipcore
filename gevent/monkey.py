@@ -1,7 +1,5 @@
 # Copyright (c) 2009-2012 Denis Bilenko. See LICENSE for details.
 """Make the standard library cooperative."""
-from __future__ import absolute_import
-from __future__ import print_function
 import sys
 
 __all__ = ['patch_all',

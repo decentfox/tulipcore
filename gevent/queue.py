@@ -20,7 +20,6 @@ means repeatedly calling :meth:`get <Queue.get>` until :meth:`get <Queue.get>` r
     2
 """
 
-from __future__ import absolute_import
 import sys
 import heapq
 import collections

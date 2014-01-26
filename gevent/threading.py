@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-
-
 __implements__ = ['local',
                   '_start_new_thread',
                   '_allocate_lock',

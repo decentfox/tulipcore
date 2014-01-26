@@ -1,4 +1,3 @@
-from __future__ import print_function
 import greentest
 from gevent import socket
 import gevent

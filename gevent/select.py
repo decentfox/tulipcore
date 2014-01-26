@@ -1,5 +1,4 @@
 # Copyright (c) 2009-2011 Denis Bilenko. See LICENSE for details.
-from __future__ import absolute_import
 from gevent.event import Event
 from gevent.hub import get_hub
 from gevent.hub import integer_types

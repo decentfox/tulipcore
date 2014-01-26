@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """gevent build & installation script"""
-from __future__ import print_function
 import sys
 import os
 import re

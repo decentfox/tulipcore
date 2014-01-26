@@ -9,7 +9,6 @@ Does the following:
     - Run set_version.py that will update gevent/__init__.py.
     - Run 'python setup.py sdist'.
 """
-from __future__ import print_function
 import sys
 import os
 import glob

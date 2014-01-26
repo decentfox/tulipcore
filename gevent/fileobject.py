@@ -1,7 +1,6 @@
 import os
 from gevent._fileobjectcommon import FileObjectClosed
 from gevent.hub import get_hub
-from gevent.hub import integer_types
 from gevent.lock import Semaphore, DummySemaphore
 
 
@@ -38,7 +37,7 @@ class FileObjectThread(object):
             self.lock = DummySemaphore()
         if not hasattr(self.lock, '__enter__'):
             raise TypeError('Expected a Semaphore or boolean, got %r' % type(self.lock))
-        if isinstance(fobj, integer_types):
+        if isinstance(fobj, int):
             if not self._close:
                 # we cannot do this, since fdopen object will close the descriptor
                 raise TypeError('FileObjectThread does not support close=False')
@@ -111,7 +110,7 @@ class FileObjectBlock(object):
         self._close = kwargs.pop('close', True)
         if kwargs:
             raise TypeError('Unexpected arguments: %r' % kwargs.keys())
-        if isinstance(fobj, integer_types):
+        if isinstance(fobj, int):
             if not self._close:
                 # we cannot do this, since fdopen object will close the descriptor
                 raise TypeError('FileObjectBlock does not support close=False')

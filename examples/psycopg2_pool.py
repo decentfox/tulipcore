@@ -7,13 +7,6 @@ from gevent.socket import wait_read, wait_write
 from psycopg2 import extensions, OperationalError, connect
 
 
-if sys.version_info[0] >= 3:
-    integer_types = int,
-else:
-    import __builtin__
-    integer_types = int, __builtin__.long
-
-
 def gevent_wait_callback(conn, timeout=None):
     """A wait callback useful to allow gevent to work with Psycopg."""
     while 1:
@@ -35,7 +28,7 @@ extensions.set_wait_callback(gevent_wait_callback)
 class DatabaseConnectionPool(object):
 
     def __init__(self, maxsize=100):
-        if not isinstance(maxsize, integer_types):
+        if not isinstance(maxsize, int):
             raise TypeError('Expected integer, got %r' % (maxsize, ))
         self.maxsize = maxsize
         self.pool = Queue()

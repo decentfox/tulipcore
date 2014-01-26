@@ -1,7 +1,7 @@
 # Copyright (c) 2012 Denis Bilenko. See LICENSE for details.
 import sys
 import os
-from gevent.hub import get_hub, getcurrent, sleep, integer_types
+from gevent.hub import get_hub, getcurrent, sleep
 from gevent.event import AsyncResult
 from gevent.greenlet import Greenlet
 from gevent.pool import IMap, IMapUnordered
@@ -29,7 +29,7 @@ class ThreadPool(object):
         self._init(maxsize)
 
     def _set_maxsize(self, maxsize):
-        if not isinstance(maxsize, integer_types):
+        if not isinstance(maxsize, int):
             raise TypeError('maxsize must be integer: %r' % (maxsize, ))
         if maxsize < 0:
             raise ValueError('maxsize must not be negative: %r' % (maxsize, ))

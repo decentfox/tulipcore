@@ -5,7 +5,7 @@ import _socket
 import errno
 from gevent.greenlet import Greenlet, getfuncname
 from gevent.event import Event
-from gevent.hub import integer_types, get_hub
+from gevent.hub import get_hub
 
 
 __all__ = ['BaseServer']
@@ -86,7 +86,7 @@ class BaseServer(object):
         elif hasattr(spawn, 'spawn'):
             self.pool = spawn
             self._spawn = spawn.spawn
-        elif isinstance(spawn, integer_types):
+        elif isinstance(spawn, int):
             from gevent.pool import Pool
             self.pool = Pool(spawn)
             self._spawn = self.pool.spawn
@@ -318,7 +318,7 @@ def _parse_address(address):
             return family, (host, int(port))
         else:
             return _socket.AF_INET, ('', int(address))
-    elif isinstance(address, integer_types):
+    elif isinstance(address, int):
         return _socket.AF_INET, ('', int(address))
     else:
         raise TypeError('Expected tuple or string, got %s' % type(address))

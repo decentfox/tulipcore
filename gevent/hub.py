@@ -26,7 +26,6 @@ __all__ = ['getcurrent',
            'Waiter']
 
 
-integer_types = int,
 text_type = str
 
 

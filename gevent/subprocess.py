@@ -5,7 +5,7 @@ import gc
 import signal
 import traceback
 from gevent.event import AsyncResult
-from gevent.hub import get_hub, linkproxy, sleep, getcurrent, integer_types
+from gevent.hub import get_hub, linkproxy, sleep, getcurrent
 from gevent.fileobject import FileObject
 from gevent.greenlet import Greenlet, joinall
 spawn = Greenlet.spawn
@@ -176,7 +176,7 @@ class Popen(object):
                  cwd=None, env=None, universal_newlines=False,
                  startupinfo=None, creationflags=0, threadpool=None):
         """Create new Popen instance."""
-        if not isinstance(bufsize, integer_types):
+        if not isinstance(bufsize, int):
             raise TypeError("bufsize must be an integer")
         hub = get_hub()
 

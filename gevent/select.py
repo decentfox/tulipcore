@@ -1,7 +1,6 @@
 # Copyright (c) 2009-2011 Denis Bilenko. See LICENSE for details.
 from gevent.event import Event
 from gevent.hub import get_hub
-from gevent.hub import integer_types
 
 __implements__ = ['select']
 __all__ = ['error'] + __implements__
@@ -15,7 +14,7 @@ def get_fileno(obj):
         fileno_f = obj.fileno
     except AttributeError as ex:
         ex.__traceback__ = None
-        if not isinstance(obj, integer_types):
+        if not isinstance(obj, int):
             raise TypeError('argument must be an int, or have a fileno() method: %r' % (obj, ))
         return obj
     else:

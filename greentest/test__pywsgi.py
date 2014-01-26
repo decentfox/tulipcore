@@ -38,7 +38,6 @@ import greentest
 import gevent
 from gevent import socket
 from gevent import pywsgi
-from gevent.hub import text_type
 from gevent.pywsgi import Input
 
 
@@ -625,7 +624,7 @@ class TestInternational(TestCase):
 
     def application(self, environ, start_response):
         path_info = environ['PATH_INFO']
-        if isinstance(path_info, text_type):
+        if isinstance(path_info, str):
             path_info = path_info.encode('utf-8')
         assert path_info == b'/\xd0\xbf\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82', environ['PATH_INFO']
         assert environ['QUERY_STRING'] == '%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81=%D0%BE%D1%82%D0%B2%D0%B5%D1%82', environ['QUERY_STRING']

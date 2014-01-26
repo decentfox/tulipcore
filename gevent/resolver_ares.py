@@ -2,7 +2,7 @@
 import os
 import sys
 from _socket import getservbyname, getaddrinfo, gaierror, error
-from gevent.hub import Waiter, get_hub, text_type, reraise
+from gevent.hub import Waiter, get_hub, reraise
 from gevent.socket import AF_UNSPEC, AF_INET, AF_INET6, SOCK_STREAM, SOCK_DGRAM, SOCK_RAW, AI_NUMERICHOST, EAI_SERVICE, AI_PASSIVE
 from gevent.ares import channel, InvalidIP
 
@@ -117,7 +117,7 @@ class Resolver(object):
         return port, socktypes
 
     def _getaddrinfo(self, host, port, family=0, socktype=0, proto=0, flags=0):
-        if isinstance(host, text_type):
+        if isinstance(host, str):
             host = host.encode('idna')
         elif not isinstance(host, str) or (flags & AI_NUMERICHOST):
             # this handles cases which do not require network access
@@ -205,7 +205,7 @@ class Resolver(object):
             if not result:
                 raise
             _ip_address = result[0][-1][0]
-            if isinstance(_ip_address, text_type):
+            if isinstance(_ip_address, str):
                 _ip_address = _ip_address.encode('ascii')
             if _ip_address == ip_address:
                 raise

@@ -11,7 +11,6 @@ To start the server on some other interface/port, use
 
 """
 from gevent import monkey; monkey.patch_all()
-from gevent import hub
 import sys
 import re
 import traceback
@@ -105,7 +104,7 @@ def fix_links(data, proxy_url, host_url):
             result = m.group('before') + '"' + join(proxy_url, host_url, url) + '"'
         #print('replaced %r -> %r' % (m.group(0), result))
         return result
-    if not isinstance(data, hub.text_type):
+    if not isinstance(data, str):
         data = data.decode('iso-8859-1')
     data = _link_re_1.sub(fix_link_cb, data)
     data = _link_re_2.sub(fix_link_cb, data)

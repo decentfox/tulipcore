@@ -49,13 +49,13 @@ class BoundedSemaphore(Semaphore):
     If not given, *value* defaults to 1."""
 
     def __init__(self, value=1):
-        Semaphore.__init__(self, value)
+        super().__init__(value)
         self._initial_value = value
 
     def release(self):
-        if self.counter >= self._initial_value:
+        if self._value >= self._initial_value:
             raise ValueError("Semaphore released too many times")
-        return Semaphore.release(self)
+        return super().release()
 
 
 class RLock(object):

@@ -3,13 +3,7 @@ test__all__.py
 test__api_timeout.py
 # uses socket test__backdoor.py
 test_close_backend_fd.py
-test__core_async.py
 test__core_callback.py
-test__core_loop_run.py
-test__core.py
-test__core_stat.py
-test__core_timer.py
-test__core_watcher.py
 test__destroy.py
 # uses socket test__doctests.py
 test__environ.py

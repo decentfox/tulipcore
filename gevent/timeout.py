@@ -73,10 +73,15 @@ class Timeout(BaseException):
                 raise # not my timeout
     """
 
-    def __init__(self, seconds=None, exception=None, ref=True, priority=-1):
+    def __init__(self, seconds=None, exception=None, ref=None, priority=None):
         self.seconds = seconds
         self.exception = exception
-        self.timer = get_hub().loop.timer(seconds or 0.0, ref=ref, priority=priority)
+        if ref is not None:
+            raise NotImplementedError('ref is not implemented')
+        if priority is not None:
+            raise NotImplementedError('priority is not implemented')
+        self.timer = None
+        self.loop = get_hub().loop
 
     def start(self):
         """Schedule the timeout."""
@@ -85,12 +90,16 @@ class Timeout(BaseException):
             pass
         elif self.exception is None or self.exception is False or isinstance(self.exception, str):
             # timeout that raises self
-            self.timer.start(getcurrent().throw, self)
+            self.timer = self.loop.call_later(self.seconds or 0.0, self._reset_on_call, getcurrent().throw, self)
         else:  # regular timeout with user-provided exception
-            self.timer.start(getcurrent().throw, self.exception)
+            self.timer = self.loop.call_later(self.seconds or 0.0, self._reset_on_call, getcurrent().throw, self.exception)
+
+    def _reset_on_call(self, method, *args):
+        self.timer = None
+        method(*args)
 
     @classmethod
-    def start_new(cls, timeout=None, exception=None, ref=True):
+    def start_new(cls, timeout=None, exception=None, ref=None):
         """Create a started :class:`Timeout`.
 
         This is a shortcut, the exact action depends on *timeout*'s type:
@@ -112,11 +121,13 @@ class Timeout(BaseException):
     @property
     def pending(self):
         """Return True if the timeout is scheduled to be raised."""
-        return self.timer.pending or self.timer.active
+        return self.timer is not None
 
     def cancel(self):
         """If the timeout is pending, cancel it. Otherwise, do nothing."""
-        self.timer.stop()
+        if self.timer is not None:
+            self.timer.cancel()
+            self.timer = None
         self.__traceback__ = None
 
     def __repr__(self):

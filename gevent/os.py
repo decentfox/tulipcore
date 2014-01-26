@@ -4,12 +4,9 @@ On Posix platforms this uses non-blocking IO, on Windows a threadpool
 is used.
 """
 
-
 import os
 from gevent.hub import get_hub, reinit
-import errno
 
-EAGAIN = getattr(errno, 'EAGAIN', 11)
 
 try:
     import fcntl
@@ -23,7 +20,7 @@ _read = os.read
 _write = os.write
 
 
-ignored_errors = [EAGAIN, errno.EINTR]
+ignored_errors = (BlockingIOError, InterruptedError)
 
 
 if fcntl:
@@ -47,12 +44,11 @@ if fcntl:
         while True:
             try:
                 return _read(fd, n)
-            except OSError as e:
-                if e.errno not in ignored_errors:
-                    raise
+            except ignored_errors:
+                pass
             if hub is None:
                 hub = get_hub()
-                event = hub.loop.io(fd, 1)
+                event = hub.io(fd, 1)
             hub.wait(event)
 
     def nb_write(fd, buf):
@@ -65,12 +61,11 @@ if fcntl:
         while True:
             try:
                 return _write(fd, buf)
-            except OSError as e:
-                if e.errno not in ignored_errors:
-                    raise
+            except ignored_errors:
+                pass
             if hub is None:
                 hub = get_hub()
-                event = hub.loop.io(fd, 2)
+                event = hub.io(fd, 2)
             hub.wait(event)
 
 

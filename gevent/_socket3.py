@@ -39,7 +39,7 @@ class socket(_socket.socket):
         _socket.socket.setblocking(self, False)
         fileno = _socket.socket.fileno(self)
         self.hub = get_hub()
-        io_class = self.hub.loop.io
+        io_class = self.hub.io
         self._read_event = io_class(fileno, 1)
         self._write_event = io_class(fileno, 2)
         self.timeout = _socket.getdefaulttimeout()
@@ -72,11 +72,10 @@ class socket(_socket.socket):
         raise TypeError("Cannot serialize socket object")
 
     def _get_ref(self):
-        return self._read_event.ref or self._write_event.ref
+        raise NotImplementedError('ref is not implemented')
 
     def _set_ref(self, value):
-        self._read_event.ref = value
-        self._write_event.ref = value
+        raise NotImplementedError('ref is not implemented')
 
     ref = property(_get_ref, _set_ref)
 

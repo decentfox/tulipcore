@@ -157,7 +157,7 @@ class Greenlet(greenlet):
         if self._start_event is None:
             self._start_event = _dummy_event
         else:
-            self._start_event.stop()
+            self._start_event.cancel()
         try:
             greenlet.throw(self, *args)
         finally:
@@ -180,13 +180,12 @@ class Greenlet(greenlet):
     def start(self):
         """Schedule the greenlet to run in this loop iteration"""
         if self._start_event is None:
-            self._start_event = self.parent.loop.run_callback(self.switch)
+            self._start_event = self.parent.loop.call_soon(self.switch)
 
     def start_later(self, seconds):
         """Schedule the greenlet to run in the future loop iteration *seconds* later"""
         if self._start_event is None:
-            self._start_event = self.parent.loop.timer(seconds)
-            self._start_event.start(self.switch)
+            self._start_event = self.parent.loop.call_later(seconds, self.switch)
 
     @classmethod
     def spawn(cls, *args, **kwargs):
@@ -223,10 +222,10 @@ class Greenlet(greenlet):
         if self._start_event is None:
             self._start_event = _dummy_event
         else:
-            self._start_event.stop()
+            self._start_event.cancel()
         if not self.dead:
             waiter = Waiter()
-            self.parent.loop.run_callback(_kill, self, exception, waiter)
+            self.parent.loop.call_soon(_kill, self, exception, waiter)
             if block:
                 waiter.get()
                 self.join(timeout)
@@ -300,7 +299,7 @@ class Greenlet(greenlet):
         self._exception = None
         self.value = result
         if self._links and not self._notifier:
-            self._notifier = self.parent.loop.run_callback(self._notify_links)
+            self._notifier = self.parent.loop.call_soon(self._notify_links)
 
     def _report_error(self, exc_info):
         exception = exc_info[1]
@@ -311,7 +310,7 @@ class Greenlet(greenlet):
         self._exception = exception
 
         if self._links and not self._notifier:
-            self._notifier = self.parent.loop.run_callback(self._notify_links)
+            self._notifier = self.parent.loop.call_soon(self._notify_links)
 
         self.parent.handle_error(self, *exc_info)
 
@@ -320,7 +319,7 @@ class Greenlet(greenlet):
             if self._start_event is None:
                 self._start_event = _dummy_event
             else:
-                self._start_event.stop()
+                self._start_event.cancel()
             try:
                 result = self._run(*self.args, **self.kwargs)
             except:
@@ -341,7 +340,7 @@ class Greenlet(greenlet):
             raise TypeError('Expected callable: %r' % (callback, ))
         self._links.append(callback)
         if self.ready() and self._links and not self._notifier:
-            self._notifier = self.parent.loop.run_callback(self._notify_links)
+            self._notifier = self.parent.loop.call_soon(self._notify_links)
 
     def link(self, callback, SpawnedLink=SpawnedLink):
         """Link greenlet's completion to a callable.
@@ -367,6 +366,7 @@ class Greenlet(greenlet):
         self.link(callback, SpawnedLink=SpawnedLink)
 
     def _notify_links(self):
+        self._notifier = None
         while self._links:
             link = self._links.popleft()
             try:
@@ -377,7 +377,7 @@ class Greenlet(greenlet):
 
 class _dummy_event(object):
 
-    def stop(self):
+    def cancel(self):
         pass
 
 
@@ -434,7 +434,7 @@ def killall(greenlets, exception=GreenletExit, block=True, timeout=None):
     loop = greenlets[0].loop
     if block:
         waiter = Waiter()
-        loop.run_callback(_killall3, greenlets, exception, waiter)
+        loop.call_soon(_killall3, greenlets, exception, waiter)
         t = Timeout.start_new(timeout)
         try:
             alive = waiter.get()
@@ -443,7 +443,7 @@ def killall(greenlets, exception=GreenletExit, block=True, timeout=None):
         finally:
             t.cancel()
     else:
-        loop.run_callback(_killall, greenlets, exception)
+        loop.call_soon(_killall, greenlets, exception)
 
 
 _meth_self = "__self__"

@@ -16,6 +16,22 @@ __all__ = ['ThreadPool',
            'ThreadResult']
 
 
+class ChangeableSemaphore(Semaphore):
+    def change(self, delta):
+        if delta > 0:
+            for _ in range(delta):
+                self.release()
+        elif delta < 0:
+            self._value -= delta
+
+    def release(self):
+        # super().release() supports only non-negative value
+        if self._value >= 0:
+            super().release()
+        else:
+            self._value += 1
+
+
 class ThreadPool(object):
 
     def __init__(self, maxsize, hub=None):
@@ -34,7 +50,7 @@ class ThreadPool(object):
         if maxsize < 0:
             raise ValueError('maxsize must not be negative: %r' % (maxsize, ))
         difference = maxsize - self._maxsize
-        self._semaphore.counter += difference
+        self._semaphore.change(difference)
         self._maxsize = maxsize
         self.adjust()
         # make sure all currently blocking spawn() start unlocking if maxsize increased
@@ -81,7 +97,7 @@ class ThreadPool(object):
 
     def _init(self, maxsize):
         self._size = 0
-        self._semaphore = Semaphore(1)
+        self._semaphore = ChangeableSemaphore(1)
         self._lock = Lock()
         self.task_queue = Queue()
         self._set_maxsize(maxsize)

@@ -5,10 +5,7 @@ or not).
 
 This module is missing 'Thread' class, but includes 'Queue'.
 """
-try:
-    from Queue import Full, Empty
-except ImportError:
-    from queue import Full, Empty
+from queue import Full, Empty
 from collections import deque
 import heapq
 from time import time as _time, sleep as _sleep

@@ -1,16 +1,11 @@
 # Copyright (c) 2009-2012 Denis Bilenko. See LICENSE for details.
 
+import asyncio
 import sys
 import os
 import traceback
+from asyncio import get_event_loop
 
-import greenlet  # http://pypi.python.org/pypi/greenlet/
-greenlet_version = getattr(greenlet, '__version__', None)
-if greenlet_version:
-    greenlet_version_info = [int(x) for x in greenlet_version.split('.')]
-if not greenlet_version or greenlet_version_info[:3] < [0, 3, 2]:
-    raise ImportError('''Your version of greenlet (%s) is too old (required >= 0.3.2)
-             You can get a newer version of greenlet from http://pypi.python.org/pypi/greenlet/''' % (greenlet_version, ))
 from greenlet import greenlet, getcurrent, GreenletExit
 
 
@@ -31,23 +26,18 @@ def reraise(tp, value, tb=None):
         raise value.with_traceback(tb)
     raise value
 
-
-import _thread as thread
-threadlocal = thread._local
-_threadlocal = threadlocal()
-_threadlocal.Hub = None
-get_ident = thread.get_ident
-MAIN_THREAD = get_ident()
+EV_READ = 1
+EV_WRITE = 2
 
 
 def spawn_raw(function, *args, **kwargs):
     hub = get_hub()
     g = greenlet(function, hub)
-    hub.loop.run_callback(g.switch, *args, **kwargs)
+    hub.loop.call_soon(g.switch, *args, **kwargs)
     return g
 
 
-def sleep(seconds=0, ref=True):
+def sleep(seconds=0, ref=None):
     """Put the current greenlet to sleep for at least *seconds*.
 
     *seconds* may be specified as an integer, or a float if fractional seconds
@@ -56,22 +46,25 @@ def sleep(seconds=0, ref=True):
     If *ref* is false, the greenlet running sleep() will not prevent gevent.wait()
     from exiting.
     """
-    hub = get_hub()
-    loop = hub.loop
+    if ref is not None:
+        raise NotImplementedError('ref is not implemented')
+    loop = get_hub().loop
+    waiter = Waiter()
+    unique = object()
     if seconds <= 0:
-        waiter = Waiter()
-        loop.run_callback(waiter.switch)
-        waiter.get()
+        loop.call_soon(waiter.switch, unique)
     else:
-        hub.wait(loop.timer(seconds, ref=ref))
+        loop.call_later(seconds, waiter.switch, unique)
+    result = waiter.get()
+    assert result is unique, 'Invalid switch into %s: %r (expected %r)' % (
+        getcurrent(), result, unique)
 
 
 def idle(priority=0):
-    hub = get_hub()
-    watcher = hub.loop.idle()
     if priority:
-        watcher.priority = priority
-    hub.wait(watcher)
+        raise NotImplementedError('priority is not implemented')
+    # TODO: implement idle
+    sleep()
 
 
 def kill(greenlet, exception=GreenletExit):
@@ -82,7 +75,7 @@ def kill(greenlet, exception=GreenletExit):
     so you have to use this function.
     """
     if not greenlet.dead:
-        get_hub().loop.run_callback(greenlet.throw, exception)
+        get_hub().loop.call_soon(greenlet.throw, exception)
 
 
 class signal(object):
@@ -101,10 +94,10 @@ class signal(object):
             self.greenlet_class = Greenlet
 
     def _get_ref(self):
-        return self.watcher.ref
+        raise NotImplementedError('ref is not implemented')
 
     def _set_ref(self, value):
-        self.watcher.ref = value
+        raise NotImplementedError('ref is not implemented')
 
     ref = property(_get_ref, _set_ref)
     del _get_ref, _set_ref
@@ -137,13 +130,13 @@ def get_hub_class():
 
     If there's no type of hub for the current thread yet, 'gevent.hub.Hub' is used.
     """
-    global _threadlocal
+    loop = get_event_loop()
     try:
-        hubtype = _threadlocal.Hub
+        hubtype = loop.Hub
     except AttributeError:
         hubtype = None
     if hubtype is None:
-        hubtype = _threadlocal.Hub = Hub
+        hubtype = loop.Hub = Hub
     return hubtype
 
 
@@ -152,12 +145,12 @@ def get_hub(*args, **kwargs):
 
     If hub does not exists in the current thread, the new one is created with call to :meth:`get_hub_class`.
     """
-    global _threadlocal
+    loop = get_event_loop()
     try:
-        return _threadlocal.hub
+        return loop.hub
     except AttributeError:
         hubtype = get_hub_class()
-        hub = _threadlocal.hub = hubtype(*args, **kwargs)
+        hub = loop.hub = hubtype(*args, **kwargs)
         return hub
 
 
@@ -166,15 +159,16 @@ def _get_hub():
 
     Return ``None`` if no hub has been created yet.
     """
-    global _threadlocal
+    loop = get_event_loop()
     try:
-        return _threadlocal.hub
+        return loop.hub
     except AttributeError:
         pass
 
 
 def set_hub(hub):
-    _threadlocal.hub = hub
+    loop = get_event_loop()
+    loop.hub = hub
 
 
 def _import(path):
@@ -236,28 +230,21 @@ class Hub(greenlet):
 
     SYSTEM_ERROR = (KeyboardInterrupt, SystemExit, SystemError)
     NOT_ERROR = (GreenletExit, SystemExit)
-    loop_class = config('gevent.core.loop', 'GEVENT_LOOP')
     resolver_class = ['gevent.resolver_thread.Resolver',
                       'gevent.socket.BlockingResolver']
     resolver_class = resolver_config(resolver_class, 'GEVENT_RESOLVER')
     threadpool_class = config('gevent.threadpool.ThreadPool', 'GEVENT_THREADPOOL')
-    backend = config(None, 'GEVENT_BACKEND')
     format_context = 'pprint.pformat'
     threadpool_size = 10
 
     def __init__(self, loop=None, default=None):
         greenlet.__init__(self)
-        if hasattr(loop, 'run'):
-            if default is not None:
-                raise TypeError("Unexpected argument: default")
+        if default is not None:
+            raise DeprecationWarning("default is deprecated")
+        if hasattr(loop, 'run_forever'):
             self.loop = loop
         else:
-            if default is None and get_ident() != MAIN_THREAD:
-                default = False
-            loop_class = _import(self.loop_class)
-            if loop is None:
-                loop = self.backend
-            self.loop = loop_class(flags=loop, default=default)
+            self.loop = get_event_loop()
         self._resolver = None
         self._threadpool = None
         self.format_context = _import(self.format_context)
@@ -267,7 +254,7 @@ class Hub(greenlet):
             info = 'destroyed'
         else:
             try:
-                info = self.loop._format()
+                info = repr(self.loop)
             except Exception as ex:
                 info = str(ex) or repr(ex) or 'error'
         result = '<%s at 0x%x %s' % (self.__class__.__name__, id(self), info)
@@ -292,14 +279,14 @@ class Hub(greenlet):
             # switch back to this greenlet as well
             cb = None
             try:
-                cb = self.loop.run_callback(current.switch)
+                cb = self.loop.call_soon(current.switch)
             except:
                 traceback.print_exc()
             try:
                 self.parent.throw(type, value)
             finally:
                 if cb is not None:
-                    cb.stop()
+                    cb.cancel()
 
     def print_exception(self, context, type, value, tb):
         if value is None:
@@ -325,6 +312,25 @@ class Hub(greenlet):
 
     def switch_out(self):
         raise AssertionError('Impossible to call blocking function in the event loop callback')
+
+    def wait_async(self, coro_or_future):
+        waiter = Waiter()
+        unique = object()
+        future = asyncio.async(coro_or_future, loop=self.loop)
+        future.add_done_callback(lambda x: waiter.switch(unique))
+
+        try:
+            result = waiter.get()
+            assert result is unique, \
+                'Invalid switch into %s: %r (expected %r)' % (
+                    getcurrent(), result, unique)
+        except:
+            future.cancel()
+            raise
+        return future.result()
+
+    def io(self, fd, flag):
+        return IOWatcher(fd, flag)
 
     def wait(self, watcher):
         waiter = Waiter()
@@ -352,11 +358,12 @@ class Hub(greenlet):
         assert self is getcurrent(), 'Do not call Hub.run() directly'
         while True:
             loop = self.loop
-            loop.error_handler = self
+            # loop.error_handler = self
             try:
-                loop.run()
+                loop.run_forever()
             finally:
-                loop.error_handler = None  # break the refcount cycle
+                pass
+                # loop.error_handler = None  # break the refcount cycle
             self.parent.throw(LoopExit('This operation would block forever'))
         # this function must never return, as it will cause switch() in the parent greenlet
         # to return an unexpected value
@@ -393,20 +400,18 @@ class Hub(greenlet):
         return False
 
     def destroy(self, destroy_loop=None):
-        global _threadlocal
+        loop = get_event_loop()
         if self._resolver is not None:
             self._resolver.close()
             del self._resolver
         if self._threadpool is not None:
             self._threadpool.kill()
             del self._threadpool
-        if destroy_loop is None:
-            destroy_loop = not self.loop.default
         if destroy_loop:
-            self.loop.destroy()
+            self.loop.close()
         self.loop = None
-        if getattr(_threadlocal, 'hub', None) is self:
-            del _threadlocal.hub
+        if getattr(loop, 'hub', None) is self:
+            del loop.hub
 
     def _get_resolver(self):
         if self._resolver is None:
@@ -570,6 +575,31 @@ class Waiter(object):
 
     # can also have a debugging version, that wraps the value in a tuple (self, value) in switch()
     # and unwraps it in wait() thus checking that switch() was indeed called
+
+
+class IOWatcher:
+    def __init__(self, fd, flag):
+        self.hub = get_hub()
+        self.fd = fd
+        self.flag = flag
+        self.callback = None
+        self.active = False
+
+    def start(self, callback, *args):
+        self.callback = callback
+        self.active = True
+        if self.flag & EV_READ:
+            self.hub.loop.add_reader(self.fd, callback, *args)
+        if self.flag & EV_WRITE:
+            self.hub.loop.add_writer(self.fd, callback, *args)
+
+    def stop(self):
+        self.callback = None
+        self.active = False
+        if self.flag & EV_READ:
+            self.hub.loop.remove_reader(self.fd)
+        if self.flag & EV_WRITE:
+            self.hub.loop.remove_writer(self.fd)
 
 
 def iwait(objects, timeout=None):

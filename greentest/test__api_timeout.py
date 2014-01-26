@@ -105,6 +105,9 @@ class Test(greentest.TestCase):
         with Timeout(DELAY * 2, err):
             sleep(DELAY)
         del err
+        # asyncio loop won't unschedule the cancelled callback
+        assert err_ref(), repr(err_ref())
+        sleep(DELAY)
         assert not err_ref(), repr(err_ref())
 
     def test_nested_timeout(self):

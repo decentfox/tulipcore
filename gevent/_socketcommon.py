@@ -129,7 +129,7 @@ def wait_read(fileno, timeout=None, timeout_exc=timeout('timed out')):
 
     If :func:`cancel_wait` is called, raise ``socket.error(EBADF, 'File descriptor was closed in another greenlet')``.
     """
-    io = get_hub().loop.io(fileno, 1)
+    io = get_hub().io(fileno, 1)
     return wait(io, timeout, timeout_exc)
 
 
@@ -141,7 +141,7 @@ def wait_write(fileno, timeout=None, timeout_exc=timeout('timed out'), event=Non
 
     If :func:`cancel_wait` is called, raise ``socket.error(EBADF, 'File descriptor was closed in another greenlet')``.
     """
-    io = get_hub().loop.io(fileno, 2)
+    io = get_hub().io(fileno, 2)
     return wait(io, timeout, timeout_exc)
 
 
@@ -153,7 +153,7 @@ def wait_readwrite(fileno, timeout=None, timeout_exc=timeout('timed out'), event
 
     If :func:`cancel_wait` is called, raise ``socket.error(EBADF, 'File descriptor was closed in another greenlet')``.
     """
-    io = get_hub().loop.io(fileno, 3)
+    io = get_hub().io(fileno, 3)
     return wait(io, timeout, timeout_exc)
 
 

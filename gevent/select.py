@@ -45,8 +45,9 @@ def select(rlist, wlist, xlist, timeout=None):
     Note: *xlist* is ignored.
     """
     watchers = []
-    loop = get_hub().loop
-    io = loop.io
+    hub = get_hub()
+    loop = hub.loop
+    io = hub.io
     MAXPRI = loop.MAXPRI
     result = SelectResult()
     try:

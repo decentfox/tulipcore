@@ -54,7 +54,7 @@ class Test(greentest.TestCase):
         self.assertRaises(gevent.Timeout, gevent.with_timeout, 0.1, func)
 
     def test_sleep_invalid_switch(self):
-        p = gevent.spawn(util.wrap_errors(AssertionError, gevent.sleep), 2)
+        p = gevent.spawn(util.wrap_errors(AssertionError, gevent.sleep), 3600)
         gevent.sleep(0)  # wait for p to start, because actual order of switching is reversed
         switcher = gevent.spawn(p.switch, None)
         result = p.get()
@@ -68,7 +68,7 @@ class Test(greentest.TestCase):
             sock1, sock2 = socket.socketpair()
             try:
                 p = gevent.spawn(util.wrap_errors(AssertionError, socket.wait_read), sock1.fileno())
-                gevent.get_hub().loop.run_callback(switch_None, p)
+                gevent.get_hub().loop.call_soon(switch_None, p)
                 if sleep is not None:
                     gevent.sleep(sleep)
                 result = p.get()

@@ -69,7 +69,7 @@ def patch_module(name, items=None):
 
 
 def _patch_sys_std(name):
-    from gevent.fileobject import FileObjectThread
+    from gevent.io import FileObjectThread
     orig = getattr(sys, name)
     if not isinstance(orig, FileObjectThread):
         patch_item(sys, name, FileObjectThread(orig))

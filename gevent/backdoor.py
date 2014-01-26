@@ -28,7 +28,6 @@ import io
 import sys
 from code import InteractiveConsole
 
-from gevent import socket
 from gevent.greenlet import Greenlet
 from gevent.server import StreamServer
 

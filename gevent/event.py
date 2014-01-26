@@ -42,7 +42,7 @@ class Event(object):
         self._flag = True
         self._todo.update(self._links)
         if self._todo and not self._notifier:
-            self._notifier = self.hub.loop.run_callback(self._notify_links)
+            self._notifier = self.hub.loop.call_soon(self._notify_links)
 
     def clear(self):
         """Reset the internal flag to false.
@@ -94,7 +94,7 @@ class Event(object):
         self._links.add(callback)
         if self._flag and not self._notifier:
             self._todo.add(callback)
-            self._notifier = self.hub.loop.run_callback(self._notify_links)
+            self._notifier = self.hub.loop.call_soon(self._notify_links)
 
     def unlink(self, callback):
         """Remove the callback set by :meth:`rawlink`"""
@@ -104,6 +104,7 @@ class Event(object):
             pass
 
     def _notify_links(self):
+        self._notifier = None
         while self._todo:
             link = self._todo.pop()
             if link in self._links:  # check that link was not notified yet and was not removed by the client
@@ -188,7 +189,7 @@ class AsyncResult(object):
         self.value = value
         self._exception = None
         if self._links and not self._notifier:
-            self._notifier = self.hub.loop.run_callback(self._notify_links)
+            self._notifier = self.hub.loop.call_soon(self._notify_links)
 
     def set_exception(self, exception):
         """Store the exception. Wake up the waiters.
@@ -198,7 +199,7 @@ class AsyncResult(object):
         """
         self._exception = exception
         if self._links and not self._notifier:
-            self._notifier = self.hub.loop.run_callback(self._notify_links)
+            self._notifier = self.hub.loop.call_soon(self._notify_links)
 
     def get(self, block=True, timeout=None):
         """Return the stored value or raise the exception.
@@ -279,6 +280,7 @@ class AsyncResult(object):
         return self.value
 
     def _notify_links(self):
+        self._notifier = None
         while self._links:
             link = self._links.popleft()
             try:
@@ -296,7 +298,7 @@ class AsyncResult(object):
             raise TypeError('Expected callable: %r' % (callback, ))
         self._links.append(callback)
         if self.ready() and not self._notifier:
-            self._notifier = self.hub.loop.run_callback(self._notify_links)
+            self._notifier = self.hub.loop.call_soon(self._notify_links)
 
     def unlink(self, callback):
         """Remove the callback set by :meth:`rawlink`"""

@@ -1,4 +1,5 @@
 import sys
+from asyncio import Semaphore as __Semaphore__, coroutine
 from gevent.hub import get_hub, getcurrent
 from gevent.timeout import Timeout
 
@@ -6,7 +7,7 @@ from gevent.timeout import Timeout
 __all__ = ['Semaphore']
 
 
-class Semaphore(object):
+class Semaphore(__Semaphore__):
     """A semaphore manages a counter representing the number of release() calls minus the number of acquire() calls,
     plus an initial value. The acquire() method blocks if necessary until it can return without making the counter
     negative.
@@ -17,34 +18,36 @@ class Semaphore(object):
     """
 
     def __init__(self, value=1):
-        if value < 0:
-            raise ValueError("semaphore initial value must be >= 0")
+        self._hub = get_hub()
+        super().__init__(value, loop=self._hub.loop)
         self._links = []
-        self.counter = value
         self._notifier = None
+        # TODO: what about this below?
         # we don't want to do get_hub() here to allow module-level locks
         # without initializing the hub
 
-    def __str__(self):
-        params = (self.__class__.__name__, self.counter, len(self._links))
-        return '<%s counter=%s _links[%s]>' % params
-
-    def locked(self):
-        return self.counter <= 0
+    def __repr__(self):
+        res = super().__repr__()
+        if self._links:
+            extra = '_links:{}'.format(len(self._links))
+            return '<{} [{}]>'.format(res[1:-1], extra)
+        else:
+            return res
 
     def release(self):
-        self.counter += 1
+        super().release()
         self._start_notify()
 
     def _start_notify(self):
-        if self._links and self.counter > 0 and not self._notifier:
-            self._notifier = get_hub().loop.run_callback(self._notify_links)
+        if self._links and not self._locked and not self._notifier:
+            self._notifier = get_hub().loop.call_soon(self._notify_links)
 
     def _notify_links(self):
+        self._notifier = None
         while True:
             self._dirty = False
             for link in self._links:
-                if self.counter <= 0:
+                if self._locked:
                     return
                 try:
                     link(self)
@@ -75,9 +78,7 @@ class Semaphore(object):
             pass
 
     def wait(self, timeout=None):
-        if self.counter > 0:
-            return self.counter
-        else:
+        if self._locked:
             switch = getcurrent().switch
             self.rawlink(switch)
             try:
@@ -94,38 +95,29 @@ class Semaphore(object):
                     timer.cancel()
             finally:
                 self.unlink(switch)
-        return self.counter
+        return self._value
 
-    def acquire(self, blocking=True, timeout=None):
-        if self.counter > 0:
-            self.counter -= 1
-            return True
-        elif not blocking:
+    @coroutine
+    def _nonblocking_acquire(self):
+        if self._locked:
             return False
         else:
-            switch = getcurrent().switch
-            self.rawlink(switch)
+            return (yield from super().acquire())
+
+    def acquire(self, blocking=True, timeout=None):
+        if blocking:
+            timer = Timeout.start_new(timeout)
             try:
-                timer = Timeout.start_new(timeout)
                 try:
-                    try:
-                        result = get_hub().switch()
-                        assert result is self, 'Invalid switch into Semaphore.acquire(): %r' % (result, )
-                    except Timeout:
-                        ex = sys.exc_info()[1]
-                        if ex is timer:
-                            return False
-                        raise
-                finally:
-                    timer.cancel()
+                    return self._hub.wait_async(super().acquire())
+                except Timeout as ex:
+                    if ex is timer:
+                        return False
+                    raise
             finally:
-                self.unlink(switch)
-            self.counter -= 1
-            assert self.counter >= 0
-            return True
+                timer.cancel()
+        else:
+            return self._hub.wait_async(self._nonblocking_acquire())
 
     def __enter__(self):
         self.acquire()
-
-    def __exit__(self, *args):
-        self.release()

@@ -84,10 +84,8 @@ class StreamServer(BaseServer):
     def do_read(self):
         try:
             fd, address = self.socket._accept()
-        except _socket.error as err:
-            if err.args[0] == EWOULDBLOCK:
-                return
-            raise
+        except BlockingIOError:
+            return
         return socket(fileno=fd), address
 
     def wrap_socket_and_handle(self, client_socket, address):
@@ -126,10 +124,8 @@ class DatagramServer(BaseServer):
     def do_read(self):
         try:
             data, address = self._socket.recvfrom(8192)
-        except _socket.error as err:
-            if err.args[0] == EWOULDBLOCK:
-                return
-            raise
+        except BlockingIOError:
+            return
         return data, address
 
     def sendto(self, *args):

@@ -7,8 +7,8 @@ See http://www.gevent.org/ for the documentation.
 """
 
 
-version_info = (1, 1, 0, 'dev', None)
-__version__ = '1.1'
+version_info = (0, 1, 0, 'dev', None)
+__version__ = '0.1'
 
 
 __all__ = ['get_hub',

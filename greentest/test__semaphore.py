@@ -21,6 +21,19 @@ class TestTimeoutAcquire(greentest.TestCase):
         gevent.sleep(0.001)
         self.assertEqual(result, ['a', 'b'])
 
+    def test_timeout_cancels_future(self):
+        s = Semaphore(value=1)
+        self.assertTrue(s.acquire())
+        self.assertFalse(s.acquire(timeout=0.01))
+        s.release()
+        self.assertTrue(s.acquire(timeout=0.01))
+
+    def test_nonblicking_acquires(self):
+        s = Semaphore(value=1)
+        self.assertTrue(s.acquire(blocking=False))
+        self.assertFalse(s.acquire(blocking=False))
+        gevent.spawn(s.release)
+        self.assertTrue(s.acquire(blocking=False))
 
 if __name__ == '__main__':
     greentest.main()

@@ -1,7 +1,7 @@
 import os
 import greentest
 import gevent
-from gevent.fileobject import FileObject, FileObjectThread
+from gevent.io import FileObject, FileObjectThread
 
 
 class Test(greentest.TestCase):
@@ -56,7 +56,7 @@ def writer(fobj, line):
 
 
 try:
-    from gevent.fileobject import SocketAdapter
+    from gevent.io import SocketAdapter
 except ImportError:
     pass
 else:

@@ -10,20 +10,17 @@ def f():
 
 def main():
     loop = get_hub().loop
-    x = loop.run_callback(f)
+    x = loop.call_soon(f)
 
     assert x, x
     gevent.sleep(0)
     assert called == [1], called
-    assert not x, (x, bool(x))
 
-    x = loop.run_callback(f)
+    x = loop.call_soon(f)
     assert x, x
-    x.stop()
-    assert not x, x
+    x.cancel()
     gevent.sleep(0)
     assert called == [1], called
-    assert not x, x
 
 
 if __name__ == '__main__':

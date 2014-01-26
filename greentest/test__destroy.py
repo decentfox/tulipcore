@@ -1,27 +1,28 @@
 import gevent
-# Loop of initial Hub is default loop.
-hub = gevent.get_hub()
-assert hub.loop.default, hub
+from asyncio import get_event_loop_policy
 
-# Destroy hub. Does not destroy default loop if not explicitly told to.
+hub = gevent.get_hub()
+loop_id = id(hub.loop)
+
+# Destroy hub. Does not destroy loop if not explicitly told to.
 hub.destroy()
 hub = gevent.get_hub()
-assert hub.loop.default, hub
+assert id(hub.loop) == loop_id, hub
 
 saved_loop = hub.loop
-# Destroy hub including default loop.
+# Destroy hub including loop.
 hub.destroy(destroy_loop=True)
-assert saved_loop.fileno() is None, saved_loop
-print(hub, saved_loop)
+try:
+    saved_loop.remove_reader(-1)
+    assert False, saved_loop
+except AttributeError:
+    pass
 
-# Create new hub and explicitly request creation of a new default loop.
-hub = gevent.get_hub(default=True)
-assert hub.loop.default, hub
+# Create a new loop.
+policy = get_event_loop_policy()
+new_loop = policy.new_event_loop()
+policy.set_event_loop(new_loop)
 
-# Destroy hub including default loop.
-hub.destroy(destroy_loop=True)
-
-# Create new non-default loop in new hub.
+# Create new hub
 hub = gevent.get_hub()
-assert not hub.loop.default, hub
-hub.destroy()
+assert hub.loop is new_loop, hub

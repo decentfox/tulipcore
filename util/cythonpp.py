@@ -11,10 +11,7 @@ from hashlib import md5
 from itertools import combinations, product
 
 do_exec = None
-if sys.version_info >= (3, 0):
-    exec("def do_exec(co, loc): exec(co, loc)\n")
-else:
-    exec("def do_exec(co, loc): exec co in loc\n")
+exec("def do_exec(co, loc): exec(co, loc)\n")
 
 _ex = lambda: sys.exc_info()[1]
 

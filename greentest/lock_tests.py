@@ -423,10 +423,7 @@ class BaseSemaphoreTests(BaseTestCase):
 
     def test_constructor(self):
         self.assertRaises(ValueError, self.semtype, value = -1)
-        if sys.version_info[0] > 2:
-            self.assertRaises(ValueError, self.semtype, value = -sys.maxsize)
-        else:
-            self.assertRaises(ValueError, self.semtype, value = -sys.maxint)
+        self.assertRaises(ValueError, self.semtype, value = -sys.maxsize)
 
     def test_acquire(self):
         sem = self.semtype(1)

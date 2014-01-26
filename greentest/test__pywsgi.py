@@ -225,10 +225,8 @@ _old_makefile = socket.socket.makefile
 
 
 def makefile(self, mode='r', bufsize=-1):
-    if bufsize == 1 and sys.version_info[0] > 2:
+    if bufsize == 1:
         return DebugFileObject(_old_makefile(self, mode, -1), True)
-    else:
-        return DebugFileObject(_old_makefile(self, mode, bufsize))
 
 socket.socket.makefile = makefile
 
@@ -390,21 +388,19 @@ class TestYield(CommonTests):
             yield b"not found"
 
 
-if sys.version_info[:2] >= (2, 6):
+class TestBytearray(CommonTests):
 
-    class TestBytearray(CommonTests):
+    validator = None
 
-        validator = None
-
-        @staticmethod
-        def application(env, start_response):
-            path = env['PATH_INFO']
-            if path == '/':
-                start_response('200 OK', [('Content-Type', 'text/plain')])
-                return [bytearray(b"hello "), bytearray(b"world")]
-            else:
-                start_response('404 Not Found', [('Content-Type', 'text/plain')])
-                return [bytearray(b"not found")]
+    @staticmethod
+    def application(env, start_response):
+        path = env['PATH_INFO']
+        if path == '/':
+            start_response('200 OK', [('Content-Type', 'text/plain')])
+            return [bytearray(b"hello "), bytearray(b"world")]
+        else:
+            start_response('404 Not Found', [('Content-Type', 'text/plain')])
+            return [bytearray(b"not found")]
 
 
 class MultiLineHeader(TestCase):

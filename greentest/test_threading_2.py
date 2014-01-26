@@ -134,21 +134,20 @@ class ThreadTests(unittest.TestCase):
             print('all tasks done')
         self.assertEqual(numrunning.get(), 0)
 
-    if sys.version_info[:2] > (2, 5):
-        def test_ident_of_no_threading_threads(self):
-            # The ident still must work for the main thread and dummy threads.
-            self.assertFalse(threading.currentThread().ident is None)
+    def test_ident_of_no_threading_threads(self):
+        # The ident still must work for the main thread and dummy threads.
+        self.assertFalse(threading.currentThread().ident is None)
 
-            def f():
-                ident.append(threading.currentThread().ident)
-                done.set()
-            done = threading.Event()
-            ident = []
-            thread.start_new_thread(f, ())
-            done.wait()
-            self.assertFalse(ident[0] is None)
-            # Kill the "immortal" _DummyThread
-            del threading._active[ident[0]]
+        def f():
+            ident.append(threading.currentThread().ident)
+            done.set()
+        done = threading.Event()
+        ident = []
+        thread.start_new_thread(f, ())
+        done.wait()
+        self.assertFalse(ident[0] is None)
+        # Kill the "immortal" _DummyThread
+        del threading._active[ident[0]]
 
     # run with a small(ish) thread stack size (256kB)
     def test_various_ops_small_stack(self):
@@ -265,38 +264,36 @@ class ThreadTests(unittest.TestCase):
             t.join()
         # else the thread is still running, and we have no way to kill it
 
-    if sys.version_info[:2] > (2, 5):
-        def test_limbo_cleanup(self):
-            # Issue 7481: Failure to start thread should cleanup the limbo map.
-            def fail_new_thread(*args):
-                raise thread.error()
-            _start_new_thread = threading._start_new_thread
-            threading._start_new_thread = fail_new_thread
-            try:
-                t = threading.Thread(target=lambda: None)
-                self.assertRaises(thread.error, t.start)
-                self.assertFalse(
-                    t in threading._limbo,
-                    "Failed to cleanup _limbo map on failure of Thread.start().")
-            finally:
-                threading._start_new_thread = _start_new_thread
+    def test_limbo_cleanup(self):
+        # Issue 7481: Failure to start thread should cleanup the limbo map.
+        def fail_new_thread(*args):
+            raise thread.error()
+        _start_new_thread = threading._start_new_thread
+        threading._start_new_thread = fail_new_thread
+        try:
+            t = threading.Thread(target=lambda: None)
+            self.assertRaises(thread.error, t.start)
+            self.assertFalse(
+                t in threading._limbo,
+                "Failed to cleanup _limbo map on failure of Thread.start().")
+        finally:
+            threading._start_new_thread = _start_new_thread
 
-    if sys.version_info[:2] > (2, 5):
-        def test_finalize_runnning_thread(self):
-            # Issue 1402: the PyGILState_Ensure / _Release functions may be called
-            # very late on python exit: on deallocation of a running thread for
-            # example.
-            try:
-                import ctypes
-            except ImportError:
-                if verbose:
-                    print("test_finalize_with_runnning_thread can't import ctypes")
-                return  # can't do anything
+    def test_finalize_runnning_thread(self):
+        # Issue 1402: the PyGILState_Ensure / _Release functions may be called
+        # very late on python exit: on deallocation of a running thread for
+        # example.
+        try:
+            import ctypes
+        except ImportError:
+            if verbose:
+                print("test_finalize_with_runnning_thread can't import ctypes")
+            return  # can't do anything
 
-            del ctypes  # pyflakes fix
+        del ctypes  # pyflakes fix
 
-            import subprocess
-            rc = subprocess.call([sys.executable, "-c", """if 1:
+        import subprocess
+        rc = subprocess.call([sys.executable, "-c", """if 1:
 %s
                 import ctypes, sys, time
                 try:
@@ -326,34 +323,33 @@ class ThreadTests(unittest.TestCase):
                 ready.acquire()  # Be sure the other thread is waiting.
                 sys.exit(42)
                 """ % setup_4])
-            self.assertEqual(rc, 42)
+        self.assertEqual(rc, 42)
 
-    if sys.version_info[:2] > (2, 5):
-        def test_join_nondaemon_on_shutdown(self):
-            # Issue 1722344
-            # Raising SystemExit skipped threading._shutdown
-            import subprocess
-            p = subprocess.Popen([sys.executable, "-c", """if 1:
+    def test_join_nondaemon_on_shutdown(self):
+        # Issue 1722344
+        # Raising SystemExit skipped threading._shutdown
+        import subprocess
+        p = subprocess.Popen([sys.executable, "-c", """if 1:
 %s
-                    import threading
-                    from time import sleep
+                import threading
+                from time import sleep
 
-                    def child():
-                        sleep(1)
-                        # As a non-daemon thread we SHOULD wake up and nothing
-                        # should be torn down yet
-                        print("Woke up, sleep function is: %%r" %% sleep)
+                def child():
+                    sleep(1)
+                    # As a non-daemon thread we SHOULD wake up and nothing
+                    # should be torn down yet
+                    print("Woke up, sleep function is: %%r" %% sleep)
 
-                    threading.Thread(target=child).start()
-                    raise SystemExit
-                """ % setup_5],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-            stdout = stdout.strip()
-            assert re.match(b'^Woke up, sleep function is: <.*?sleep.*?>$', stdout), repr(stdout)
-            stderr = re.sub(br"^\[\d+ refs\]", b"", stderr, re.MULTILINE).strip()
-            self.assertEqual(stderr, b"")
+                threading.Thread(target=child).start()
+                raise SystemExit
+            """ % setup_5],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        stdout = stdout.strip()
+        assert re.match(b'^Woke up, sleep function is: <.*?sleep.*?>$', stdout), repr(stdout)
+        stderr = re.sub(br"^\[\d+ refs\]", b"", stderr, re.MULTILINE).strip()
+        self.assertEqual(stderr, b"")
 
     def test_enumerate_after_join(self):
         # Try hard to trigger #1703448: a thread is still returned in
@@ -374,37 +370,36 @@ class ThreadTests(unittest.TestCase):
         finally:
             sys.setcheckinterval(old_interval)
 
-    if sys.version_info[:2] > (2, 5):
-        def test_no_refcycle_through_target(self):
-            class RunSelfFunction(object):
-                def __init__(self, should_raise):
-                    # The links in this refcycle from Thread back to self
-                    # should be cleaned up when the thread completes.
-                    self.should_raise = should_raise
-                    self.thread = threading.Thread(target=self._run,
-                                                   args=(self,),
-                                                   kwargs={'yet_another': self})
-                    self.thread.start()
+    def test_no_refcycle_through_target(self):
+        class RunSelfFunction(object):
+            def __init__(self, should_raise):
+                # The links in this refcycle from Thread back to self
+                # should be cleaned up when the thread completes.
+                self.should_raise = should_raise
+                self.thread = threading.Thread(target=self._run,
+                                               args=(self,),
+                                               kwargs={'yet_another': self})
+                self.thread.start()
 
-                def _run(self, other_ref, yet_another):
-                    if self.should_raise:
-                        raise SystemExit
+            def _run(self, other_ref, yet_another):
+                if self.should_raise:
+                    raise SystemExit
 
-            cyclic_object = RunSelfFunction(should_raise=False)
-            weak_cyclic_object = weakref.ref(cyclic_object)
-            cyclic_object.thread.join()
-            del cyclic_object
-            self.assertEquals(None, weak_cyclic_object(),
-                              msg=('%d references still around' %
-                                   sys.getrefcount(weak_cyclic_object())))
+        cyclic_object = RunSelfFunction(should_raise=False)
+        weak_cyclic_object = weakref.ref(cyclic_object)
+        cyclic_object.thread.join()
+        del cyclic_object
+        self.assertEquals(None, weak_cyclic_object(),
+                          msg=('%d references still around' %
+                               sys.getrefcount(weak_cyclic_object())))
 
-            raising_cyclic_object = RunSelfFunction(should_raise=True)
-            weak_raising_cyclic_object = weakref.ref(raising_cyclic_object)
-            raising_cyclic_object.thread.join()
-            del raising_cyclic_object
-            self.assertEquals(None, weak_raising_cyclic_object(),
-                              msg=('%d references still around' %
-                                   sys.getrefcount(weak_raising_cyclic_object())))
+        raising_cyclic_object = RunSelfFunction(should_raise=True)
+        weak_raising_cyclic_object = weakref.ref(raising_cyclic_object)
+        raising_cyclic_object.thread.join()
+        del raising_cyclic_object
+        self.assertEquals(None, weak_raising_cyclic_object(),
+                          msg=('%d references still around' %
+                               sys.getrefcount(weak_raising_cyclic_object())))
 
 
 class ThreadJoinOnShutdown(unittest.TestCase):

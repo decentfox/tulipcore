@@ -2,7 +2,6 @@
 # Copyright (c) 2009 Denis Bilenko. See LICENSE for details.
 
 """Spawn multiple workers and wait for them to complete"""
-import sys
 
 urls = ['http://www.google.com', 'http://www.yandex.ru', 'http://www.python.org']
 
@@ -13,10 +12,7 @@ from gevent import monkey
 monkey.patch_all()
 
 
-if sys.version_info[0] == 3:
-    from urllib.request import urlopen
-else:
-    from urllib2 import urlopen
+from urllib.request import urlopen
 
 
 def print_head(url):

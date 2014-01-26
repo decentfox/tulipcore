@@ -32,10 +32,7 @@ def reraise(tp, value, tb=None):
     raise value
 
 
-if sys.version_info[0] <= 2:
-    import thread
-else:
-    import _thread as thread
+import _thread as thread
 threadlocal = thread._local
 _threadlocal = threadlocal()
 _threadlocal.Hub = None

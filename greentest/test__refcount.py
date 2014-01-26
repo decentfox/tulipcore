@@ -22,17 +22,7 @@
 """This test checks that underlying socket instances (gevent.socket.socket._sock)
 are not leaked by the hub.
 """
-import sys
-if sys.version_info[0] < 3:
-    from _socket import socket
-
-    class Socket(socket):
-        "Something we can have a weakref to"
-
-    import _socket
-    _socket.socket = Socket
-else:
-    from _socket import socket as Socket
+from _socket import socket as Socket
 
 import greentest
 from gevent import monkey; monkey.patch_all()

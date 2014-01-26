@@ -6,8 +6,6 @@
     used directly. For spawning greenlets in your applications, prefer
     :class:`Greenlet` class.
 """
-import sys
-
 __implements__ = ['allocate_lock',
                   'get_ident',
                   'exit',
@@ -17,11 +15,8 @@ __implements__ = ['allocate_lock',
                   '_local']
 
 __imports__ = ['error']
-if sys.version_info[0] <= 2:
-    import thread as __thread__
-else:
-    import _thread as __thread__
-    __target__ = '_thread'
+import _thread as __thread__
+__target__ = '_thread'
 error = __thread__.error
 from gevent.hub import getcurrent, GreenletExit
 from gevent.greenlet import Greenlet

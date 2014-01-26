@@ -26,15 +26,13 @@ class Test(TestCase):
         try:
             core.loop(['port', 'blabla'])
         except ValueError as ex:
-            if sys.version_info[0] > 2:
-                ex.__traceback__ = None
+            ex.__traceback__ = None
         else:
             raise AssertionError("ValueError is not raised")
         try:
             core.loop(object())
         except TypeError as ex:
-            if sys.version_info[0] > 2:
-                ex.__traceback__ = None
+            ex.__traceback__ = None
         else:
             raise AssertionError("TypeError is not raised")
 

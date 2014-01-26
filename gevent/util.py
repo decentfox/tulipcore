@@ -1,8 +1,6 @@
 # Copyright (c) 2009 Denis Bilenko. See LICENSE for details.
 __all__ = ['wrap_errors']
 
-import sys
-
 
 class wrap_errors(object):
     """Helper to make function return an exception, rather than raise it.
@@ -38,8 +36,7 @@ class wrap_errors(object):
         try:
             return func(*args, **kwargs)
         except self.errors as ex:
-            if sys.version_info[0] > 2:
-                ex.__traceback__ = None
+            ex.__traceback__ = None
             return ex
 
     def __str__(self):

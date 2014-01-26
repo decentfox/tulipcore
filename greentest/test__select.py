@@ -1,4 +1,3 @@
-import six
 import sys
 import os
 from gevent import select, socket
@@ -29,12 +28,6 @@ class TestSelectTypes(greentest.TestCase):
     def test_int(self):
         sock = socket.socket()
         select.select([int(sock.fileno())], [], [], 0.001)
-
-    if hasattr(six.builtins, 'long'):
-        def test_long(self):
-            sock = socket.socket()
-            select.select(
-                [six.builtins.long(sock.fileno())], [], [], 0.001)
 
     def test_string(self):
         self.switch_expected = False

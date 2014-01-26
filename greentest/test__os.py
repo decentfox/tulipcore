@@ -1,5 +1,3 @@
-import sys
-import six
 from os import pipe
 from gevent import os
 from greentest import TestCase, main
@@ -59,15 +57,8 @@ class TestOS_tp(TestCase):
         assert bytesread[0] == nbytes
         assert bytesread[0] == byteswritten[0]
 
-    if sys.version_info[0] < 3:
-
-        def test_if_pipe_blocks_buffer(self):
-            self._test_if_pipe_blocks(six.builtins.buffer)
-
-    if sys.version_info[:2] >= (2, 7):
-
-        def test_if_pipe_blocks_memoryview(self):
-            self._test_if_pipe_blocks(six.builtins.memoryview)
+    def test_if_pipe_blocks_memoryview(self):
+        self._test_if_pipe_blocks(memoryview)
 
 
 if hasattr(os, 'make_nonblocking'):

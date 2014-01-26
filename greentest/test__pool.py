@@ -6,7 +6,6 @@ from gevent.queue import Queue
 import greentest
 import random
 from greentest import ExpectedException
-import six
 
 import unittest
 
@@ -284,13 +283,13 @@ class TestPool(greentest.TestCase):
 
         it = self.pool.imap(sqr, range(10))
         for i in range(10):
-            self.assertEqual(six.advance_iterator(it), i * i)
-        self.assertRaises(StopIteration, lambda: six.advance_iterator(it))
+            self.assertEqual(next(it), i * i)
+        self.assertRaises(StopIteration, lambda: next(it))
 
         it = self.pool.imap(sqr, range(1000))
         for i in range(1000):
-            self.assertEqual(six.advance_iterator(it), i * i)
-        self.assertRaises(StopIteration, lambda: six.advance_iterator(it))
+            self.assertEqual(next(it), i * i)
+        self.assertRaises(StopIteration, lambda: next(it))
 
     def test_imap_random(self):
         it = self.pool.imap(sqr_random_sleep, range(10))
@@ -460,18 +459,18 @@ class TestErrorInHandler(greentest.TestCase):
     def test_imap(self):
         p = pool.Pool(1)
         it = p.imap(divide_by, [1, 0, 2])
-        self.assertEqual(six.advance_iterator(it), 1.0)
-        self.assertRaises(ZeroDivisionError, six.advance_iterator, it)
-        self.assertEqual(six.advance_iterator(it), 0.5)
-        self.assertRaises(StopIteration, six.advance_iterator, it)
+        self.assertEqual(next(it), 1.0)
+        self.assertRaises(ZeroDivisionError, next, it)
+        self.assertEqual(next(it), 0.5)
+        self.assertRaises(StopIteration, next, it)
 
     def test_imap_unordered(self):
         p = pool.Pool(1)
         it = p.imap_unordered(divide_by, [1, 0, 2])
-        self.assertEqual(six.advance_iterator(it), 1.0)
-        self.assertRaises(ZeroDivisionError, six.advance_iterator, it)
-        self.assertEqual(six.advance_iterator(it), 0.5)
-        self.assertRaises(StopIteration, six.advance_iterator, it)
+        self.assertEqual(next(it), 1.0)
+        self.assertRaises(ZeroDivisionError, next, it)
+        self.assertEqual(next(it), 0.5)
+        self.assertRaises(StopIteration, next, it)
 
 
 if __name__ == '__main__':

@@ -5,7 +5,6 @@ import weakref
 import greentest
 from gevent.threadpool import ThreadPool
 import gevent
-import six
 
 
 class TestCase(greentest.TestCase):
@@ -125,13 +124,13 @@ class TestPool(TestCase):
 
         it = self.pool.imap(sqr, range(10))
         for i in range(10):
-            self.assertEqual(six.advance_iterator(it), i * i)
-        self.assertRaises(StopIteration, lambda: six.advance_iterator(it))
+            self.assertEqual(next(it), i * i)
+        self.assertRaises(StopIteration, lambda: next(it))
 
         it = self.pool.imap(sqr, range(1000))
         for i in range(1000):
-            self.assertEqual(six.advance_iterator(it), i * i)
-        self.assertRaises(StopIteration, lambda: six.advance_iterator(it))
+            self.assertEqual(next(it), i * i)
+        self.assertRaises(StopIteration, lambda: next(it))
 
     def test_imap_random(self):
         it = self.pool.imap(sqr_random_sleep, range(10))

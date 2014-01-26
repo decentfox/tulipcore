@@ -10,5 +10,4 @@ API reference
    servers
    gevent.local
    gevent.monkey
-   gevent.core
    gevent.backdoor

@@ -2,8 +2,6 @@ recursive-include greentest *
 recursive-include examples *
 recursive-include gevent *
 recursive-include doc *
-recursive-include libev *
-recursive-include c-ares *
 recursive-include util *
 include LICENSE
 include README.rst

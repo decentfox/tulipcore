@@ -46,7 +46,7 @@ except ImportError:
 # the following makes hidden imports visible to freezing tools like
 # py2exe. see https://github.com/surfly/gevent/issues/181
 def __dependencies_for_freezing():
-    from gevent import core, resolver_thread, resolver_ares, socket,\
+    from gevent import core, resolver_thread, socket,\
         threadpool, thread, threading, select, subprocess
     import pprint
     import traceback

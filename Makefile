@@ -4,31 +4,11 @@
 PYTHON ?= python${TRAVIS_PYTHON_VERSION}
 CYTHON ?= cython
 
-all: gevent/gevent.core.c gevent/gevent.ares.c gevent/gevent._semaphore.c gevent/gevent._util.c
-
-gevent/gevent.core.c: gevent/core.ppyx gevent/libev.pxd
-	$(PYTHON) util/cythonpp.py -o gevent.core.c gevent/core.ppyx
-	echo                          >> gevent.core.c
-	echo '#include "callbacks.c"' >> gevent.core.c
-	mv gevent.core.* gevent/
-
-gevent/gevent.ares.c: gevent/ares.pyx gevent/*.pxd
-	$(CYTHON) -o gevent.ares.c gevent/ares.pyx
-	mv gevent.ares.* gevent/
-
-gevent/gevent._semaphore.c: gevent/_semaphore.pyx
-	$(CYTHON) -o gevent._semaphore.c gevent/_semaphore.pyx
-	mv gevent._semaphore.* gevent/
-
-gevent/gevent._util.c: gevent/_util.pyx
-	$(CYTHON) -o gevent._util.c gevent/_util.pyx
-	mv gevent._util.* gevent/
+all:
+    echo
 
 clean:
-	rm -f gevent.core.c gevent.core.h core.pyx gevent/gevent.core.c gevent/gevent.core.h gevent/core.pyx
-	rm -f gevent.ares.c gevent.ares.h gevent/gevent.ares.c gevent/gevent.ares.h
-	rm -f gevent._semaphore.c gevent._semaphore.h gevent/gevent._semaphore.c gevent/gevent._semaphore.h
-	rm -f gevent._util.c gevent._util.h gevent/gevent._util.c gevent/gevent._util.h
+    echo
 
 doc:
 	cd doc && PYTHONPATH=.. make html
@@ -54,7 +34,6 @@ travistest:
 	${PYTHON} setup.py install
 
 	cd greentest && GEVENT_RESOLVER=thread ${PYTHON} testrunner.py --expected ../known_failures.txt
-	cd greentest && GEVENT_RESOLVER=ares GEVENTARES_SERVERS=8.8.8.8 ${PYTHON} testrunner.py --expected ../known_failures.txt --ignore tests_that_dont_use_resolver.txt
 	cd greentest && GEVENT_FILE=thread ${PYTHON} testrunner.py --expected ../known_failures.txt `grep -l subprocess test_*.py`
 
 travis:
@@ -65,11 +44,6 @@ travis:
 
 	pip install -q pyflakes
 	PYTHON=python make pyflakes
-
-	sudo add-apt-repository -y ppa:chris-lea/cython
-	sudo apt-get -qq -y update
-	sudo apt-get -qq -y install cython
-	cython --version
 
 	pip install -q --download . greenlet
 	unzip -q greenlet-*.zip

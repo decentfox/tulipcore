@@ -31,7 +31,7 @@ NOT_IMPLEMENTED = {
 COULD_BE_MISSING = {
     'socket': ['create_connection', 'RAND_add', 'RAND_egd', 'RAND_status']}
 
-NO_ALL = ['gevent.threading', 'gevent._util', 'gevent._socketcommon', 'gevent._fileobjectcommon']
+NO_ALL = ['gevent.threading', 'gevent._socketcommon', 'gevent._fileobjectcommon']
 
 NO_ALL.append('gevent.ssl')
 MAPPING['gevent.thread'] = '_thread'

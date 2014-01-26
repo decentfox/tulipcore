@@ -224,8 +224,7 @@ def resolver_config(default, envvar):
     return [_resolvers.get(x, x) for x in result]
 
 
-_resolvers = {'ares': 'gevent.resolver_ares.Resolver',
-              'thread': 'gevent.resolver_thread.Resolver',
+_resolvers = {'thread': 'gevent.resolver_thread.Resolver',
               'block': 'gevent.socket.BlockingResolver'}
 
 
@@ -239,7 +238,6 @@ class Hub(greenlet):
     NOT_ERROR = (GreenletExit, SystemExit)
     loop_class = config('gevent.core.loop', 'GEVENT_LOOP')
     resolver_class = ['gevent.resolver_thread.Resolver',
-                      'gevent.resolver_ares.Resolver',
                       'gevent.socket.BlockingResolver']
     resolver_class = resolver_config(resolver_class, 'GEVENT_RESOLVER')
     threadpool_class = config('gevent.threadpool.ThreadPool', 'GEVENT_THREADPOOL')

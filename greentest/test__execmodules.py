@@ -1,6 +1,5 @@
 import sys
 from greentest import walk_modules, BaseTestCase, main
-import six
 
 
 class TestExec(BaseTestCase):
@@ -14,7 +13,7 @@ def make_exec_test(path, module):
         f = open(path)
         src = f.read()
         f.close()
-        six.exec_(src, {})
+        exec(src, {})
 
     name = "test_" + module.replace(".", "_")
     test.__name__ = name

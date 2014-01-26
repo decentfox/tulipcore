@@ -1,7 +1,6 @@
 advance_iterator = next
 
 import builtins
-exec_ = getattr(builtins, "exec")
 
 
 def reraise(tp, value, tb=None):

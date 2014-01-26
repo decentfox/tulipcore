@@ -1,5 +1,4 @@
 """Check __all__, __implements__, __extensions__, __imports__ of the modules"""
-import six
 import sys
 import unittest
 import types
@@ -50,7 +49,7 @@ class Test(unittest.TestCase):
             assert self.modname in NO_ALL
             return
         names = {}
-        six.exec_("from %s import *" % self.modname, names)
+        exec("from %s import *" % self.modname, names)
         names.pop('__builtins__', None)
         self.assertEqual(sorted(names), sorted(self.module.__all__))
 
@@ -151,7 +150,7 @@ are missing from %r:
         if modname.endswith('3'):
             return
         self.modname = modname
-        six.exec_("import %s" % modname, {})
+        exec("import %s" % modname, {})
         self.module = sys.modules[modname]
 
         self.check_all()

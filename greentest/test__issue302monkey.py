@@ -11,4 +11,4 @@ if 'gevent' not in sys.modules:
 else:
     import socket
     assert 'gevent' in repr(socket.socket), repr(socket.socket)
-    assert __file__ == 'test__issue302monkey.py', repr(__file__)
+    assert __file__ == './test__issue302monkey.py', repr(__file__)

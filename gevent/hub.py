@@ -3,6 +3,7 @@
 import asyncio
 import sys
 import os
+import pprint
 import traceback
 from asyncio import get_event_loop
 
@@ -234,7 +235,7 @@ class Hub(greenlet):
                       'gevent.socket.BlockingResolver']
     resolver_class = resolver_config(resolver_class, 'GEVENT_RESOLVER')
     threadpool_class = config('gevent.threadpool.ThreadPool', 'GEVENT_THREADPOOL')
-    format_context = 'pprint.pformat'
+    format_context = pprint.pformat
     threadpool_size = 10
 
     def __init__(self, loop=None, default=None):
@@ -247,7 +248,6 @@ class Hub(greenlet):
             self.loop = get_event_loop()
         self._resolver = None
         self._threadpool = None
-        self.format_context = _import(self.format_context)
 
     def __repr__(self):
         if self.loop is None:

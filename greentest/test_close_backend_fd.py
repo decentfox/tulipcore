@@ -1,10 +1,9 @@
 import os
 import gevent
 from gevent import core
-from six import xrange
 
 
-for count in xrange(2):
+for count in range(2):
     for backend in core.supported_backends():
         hub = gevent.get_hub(backend, default=False)
         assert hub.loop.backend == backend, (hub.loop.backend, backend)

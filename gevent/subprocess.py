@@ -5,7 +5,7 @@ import gc
 import signal
 import traceback
 from gevent.event import AsyncResult
-from gevent.hub import get_hub, linkproxy, sleep, getcurrent, integer_types, string_types, xrange
+from gevent.hub import get_hub, linkproxy, sleep, getcurrent, integer_types, string_types
 from gevent.fileobject import FileObject
 from gevent.greenlet import Greenlet, joinall
 spawn = Greenlet.spawn
@@ -602,7 +602,7 @@ class Popen(object):
                 os.closerange(3, but)
                 os.closerange(but + 1, MAXFD)
             else:
-                for i in xrange(3, MAXFD):
+                for i in range(3, MAXFD):
                     if i == but:
                         continue
                     try:

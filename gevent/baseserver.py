@@ -5,7 +5,7 @@ import _socket
 import errno
 from gevent.greenlet import Greenlet, getfuncname
 from gevent.event import Event
-from gevent.hub import string_types, integer_types, get_hub, xrange
+from gevent.hub import string_types, integer_types, get_hub
 
 
 __all__ = ['BaseServer']
@@ -132,7 +132,7 @@ class BaseServer(object):
             spawn(self._handle_and_close, *args)
 
     def _do_read(self):
-        for _ in xrange(self.max_accept):
+        for _ in range(self.max_accept):
             if self.full():
                 self.stop_accepting()
                 return

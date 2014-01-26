@@ -9,9 +9,9 @@ try:
     from test import support as test_support
 except ImportError:
     from test import test_support
-from six import xrange
 
 QUEUE_SIZE = 5
+
 
 # A thread to run a function that unclogs a blocked Queue.
 class _TriggerThread(threading.Thread):
@@ -156,7 +156,7 @@ class BaseQueueTest(unittest.TestCase, BlockingTestMixin):
         self.cum = 0
         for i in (0,1):
             threading.Thread(target=self.worker, args=(q,)).start()
-        for i in xrange(100):
+        for i in range(100):
             q.put(i)
         q.join()
         self.assertEquals(self.cum, sum(range(100)),

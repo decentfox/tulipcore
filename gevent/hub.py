@@ -29,7 +29,6 @@ __all__ = ['getcurrent',
 string_types = str,
 integer_types = int,
 text_type = str
-xrange = range
 
 
 def reraise(tp, value, tb=None):
@@ -598,7 +597,7 @@ def iwait(objects, timeout=None):
         count = len(objects)
         for obj in objects:
             obj.rawlink(switch)
-        for _ in xrange(count):
+        for _ in range(count):
             item = waiter.get()
             waiter.clear()
             if item is _NONE:

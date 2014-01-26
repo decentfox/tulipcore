@@ -8,7 +8,6 @@ from time import time
 import gevent
 import gevent.socket as gevent_socket
 from util import log
-from six import xrange
 
 
 resolver = gevent.get_hub().resolver
@@ -377,7 +376,7 @@ class TestInterrupted_gethostbyname(greentest.GenericWaitTestCase):
 
     def wait(self, timeout):
         with gevent.Timeout(timeout, False):
-            for index in xrange(1000000):
+            for index in range(1000000):
                 try:
                     gevent_socket.gethostbyname('www.x%s.com' % index)
                 except socket.error:

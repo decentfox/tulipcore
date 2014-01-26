@@ -2,7 +2,6 @@ import greentest
 import gevent
 from gevent import socket
 from gevent import backdoor
-from six import xrange
 
 
 def read_until(conn, postfix):
@@ -35,7 +34,7 @@ class Test(greentest.TestCase):
             assert line.strip() == b'4', repr(line)
             read_until(conn, b'>>> ')
 
-        jobs = [gevent.spawn(connect) for _ in xrange(10)]
+        jobs = [gevent.spawn(connect) for _ in range(10)]
         gevent.joinall(jobs)
         server.close()
         #self.assertEqual(conn.recv(1), '')

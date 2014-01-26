@@ -1,7 +1,6 @@
 import greentest
 import gevent
 from gevent.event import Event, AsyncResult
-from six import xrange
 
 DELAY = 0.01
 
@@ -137,8 +136,8 @@ class TestWait(greentest.TestCase):
                 asyncs.pop().set()
 
     def test(self):
-        events = [Event() for _ in xrange(self.N)]
-        asyncs = [AsyncResult() for _ in xrange(self.N)]
+        events = [Event() for _ in range(self.N)]
+        asyncs = [AsyncResult() for _ in range(self.N)]
         max_len = len(events) + len(asyncs)
         sender = gevent.spawn(self._sender, events, asyncs)
         results = gevent.wait(events + asyncs, count=self.count, timeout=self.timeout)

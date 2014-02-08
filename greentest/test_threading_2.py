@@ -27,20 +27,13 @@ setup_4 = '\n'.join('                %s' % line for line in setup_.split('\n'))
 setup_5 = '\n'.join('                    %s' % line for line in setup_.split('\n'))
 
 
-try:
-    from test import support
-    from test.support import verbose
-except ImportError:
-    from test import test_support as support
-    from test.test_support import verbose
+from test import support
+from test.support import verbose
 import random
 import re
 import sys
 import threading
-try:
-    import thread
-except ImportError:
-    import _thread as thread
+import _thread as thread
 import time
 import unittest
 import weakref
@@ -296,10 +289,7 @@ class ThreadTests(unittest.TestCase):
         rc = subprocess.call([sys.executable, "-c", """if 1:
 %s
                 import ctypes, sys, time
-                try:
-                    import thread
-                except ImportError:
-                    import _thread as thread
+                import _thread as thread
 
                 # This lock is used as a simple event variable.
                 ready = thread.allocate_lock()

@@ -28,10 +28,7 @@ import greentest
 from gevent import monkey; monkey.patch_all()
 
 from pprint import pformat
-try:
-    from thread import start_new_thread
-except ImportError:
-    from _thread import start_new_thread
+from _thread import start_new_thread
 from time import sleep
 import weakref
 import gc

@@ -15,14 +15,9 @@ import sys
 import re
 import traceback
 from cgi import escape
-try:
-    import urllib2
-    from urlparse import urlparse
-    from urllib import unquote
-except ImportError:
-    from urllib import request as urllib2
-    from urllib.parse import urlparse
-    from urllib.parse import unquote
+from urllib import request
+from urllib.parse import urlparse
+from urllib.parse import unquote
 
 LISTEN = ":8088"
 
@@ -55,8 +50,8 @@ def proxy(path, start_response, proxy_url):
         path = 'http://' + path
     try:
         try:
-            response = urllib2.urlopen(path)
-        except urllib2.HTTPError as ex:
+            response = request.urlopen(path)
+        except request.HTTPError as ex:
             response = ex
         print('%s: %s %s' % (path, response.code, response.msg))
         headers = [(k, v) for (k, v) in response.headers.items() if k not in drop_headers]

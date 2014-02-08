@@ -78,8 +78,5 @@ class ThreadTrace(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    try:
-        from test import support
-    except ImportError:
-        from test import test_support as support
+    from test import support
     support.run_unittest(ThreadTrace)

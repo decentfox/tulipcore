@@ -23,18 +23,12 @@
 To do that spawn a green server and then access it using a green socket.
 If either operation blocked the whole script would block and timeout.
 """
+import gevent
 import greentest
 from gevent import monkey
 monkey.patch_all()
-try:
-    import urllib2
-except ImportError:
-    from urllib import request as urllib2
-try:
-    import BaseHTTPServer
-except ImportError:
-    from http import server as BaseHTTPServer
-import gevent
+from urllib import request
+from http import server as BaseHTTPServer
 
 
 class TestGreenness(greentest.TestCase):
@@ -53,9 +47,9 @@ class TestGreenness(greentest.TestCase):
 
         port = self.httpd.socket.getsockname()[1]
         try:
-            urllib2.urlopen('http://127.0.0.1:%s' % port)
+            request.urlopen('http://127.0.0.1:%s' % port)
             assert False, 'should not get there'
-        except urllib2.HTTPError as ex:
+        except request.HTTPError as ex:
             assert ex.code == 501, repr(ex)
         server.get(0.01)
         self.assertEqual(self.httpd.request_count, 1)

@@ -17,10 +17,7 @@ print('Running with patch_all(%s): %s' % (','.join('%s=%r' % x for x in kwargs.i
 from gevent import monkey; monkey.patch_all(**kwargs)
 
 from patched_tests_setup import disable_tests_in_source
-try:
-    from test import support
-except ImportError:
-    from test import test_support as support
+from test import support
 support.is_resource_enabled = lambda *args: True
 del support.use_resources
 

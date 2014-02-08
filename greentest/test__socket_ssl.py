@@ -2,10 +2,7 @@
 from gevent import monkey; monkey.patch_all()
 import sys
 import greentest
-try:
-    import httplib
-except ImportError:
-    from http import client as httplib
+from http import client
 import socket
 
 if not hasattr(socket, 'ssl'):
@@ -17,7 +14,7 @@ class AmazonHTTPSTests(greentest.TestCase):
     __timeout__ = 30
 
     def test_amazon_response(self):
-        conn = httplib.HTTPSConnection('sdb.amazonaws.com')
+        conn = client.HTTPSConnection('sdb.amazonaws.com')
         conn.debuglevel = 1
         conn.request('GET', '/')
         conn.getresponse()

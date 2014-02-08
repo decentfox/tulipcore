@@ -6,10 +6,8 @@ import sys
 import time
 import traceback
 from datetime import datetime
-try:
-    from urllib import unquote
-except ImportError:
-    from urllib.parse import unquote
+from http import client
+from urllib.parse import unquote
 
 from gevent import socket
 import gevent
@@ -165,50 +163,48 @@ class Input(object):
         return line
 
 
-try:
-    import mimetools
-    headers_factory = mimetools.Message
-except ImportError:
-    # adapt Python 3 HTTP headers to old API
-    from http import client
-    from email.feedparser import FeedParser
+# adapt Python 3 HTTP headers to old API
+from http import client
+from email.feedparser import FeedParser
 
-    class OldMessage(client.HTTPMessage):
-        def __init__(self, **kwargs):
-            super().__init__(**kwargs)
-            self.status = ''
 
-        def getheader(self, name, default=None):
-            return self.get(name, default)
+class OldMessage(client.HTTPMessage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.status = ''
 
-        @property
-        def headers(self):
-            for key, value in self._headers:
-                yield '%s: %s\r\n' % (key, value)
+    def getheader(self, name, default=None):
+        return self.get(name, default)
 
-        @property
-        def typeheader(self):
-            return self.get('content-type')
+    @property
+    def headers(self):
+        for key, value in self._headers:
+            yield '%s: %s\r\n' % (key, value)
 
-    def headers_factory(_, fp, *args):
-        headers = 0
-        feedparser = FeedParser(OldMessage)
-        try:
-            while True:
-                line = fp.readline(client._MAXLINE + 1)
-                if len(line) > client._MAXLINE:
-                    ret = OldMessage()
-                    ret.status = 'Line too long'
-                    return ret
-                headers += 1
-                if headers > client._MAXHEADERS:
-                    raise client.HTTPException("got more than %d headers" % client._MAXHEADERS)
-                feedparser.feed(line.decode('iso-8859-1'))
-                if line in (b'\r\n', b'\n', b''):
-                    return feedparser.close()
-        finally:
-            # break the recursive reference chain
-            feedparser.__dict__.clear()
+    @property
+    def typeheader(self):
+        return self.get('content-type')
+
+
+def headers_factory(_, fp, *args):
+    headers = 0
+    feedparser = FeedParser(OldMessage)
+    try:
+        while True:
+            line = fp.readline(client._MAXLINE + 1)
+            if len(line) > client._MAXLINE:
+                ret = OldMessage()
+                ret.status = 'Line too long'
+                return ret
+            headers += 1
+            if headers > client._MAXHEADERS:
+                raise client.HTTPException("got more than %d headers" % client._MAXHEADERS)
+            feedparser.feed(line.decode('iso-8859-1'))
+            if line in (b'\r\n', b'\n', b''):
+                return feedparser.close()
+    finally:
+        # break the recursive reference chain
+        feedparser.__dict__.clear()
 
 
 class WSGIHandler(object):

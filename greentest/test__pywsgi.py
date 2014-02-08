@@ -23,10 +23,7 @@ monkey.patch_all(thread=False)
 import cgi
 import os
 import sys
-try:
-    from io import BytesIO
-except ImportError:
-    from StringIO import StringIO as BytesIO
+from io import BytesIO
 try:
     from wsgiref.validate import validator
 except ImportError:

@@ -11,7 +11,10 @@ class SimpleStreamServer(StreamServer):
 
     def handle(self, client_socket, address):
         fd = client_socket.makefile()
-        request_line = fd.readline()
+        try:
+            request_line = fd.readline()
+        finally:
+            fd.close()
         if not request_line:
             return
         try:
@@ -78,16 +81,20 @@ class TestCase(greentest.TestCase):
 
     def makefile(self, timeout=0.1, bufsize=1, need_sock=False):
         sock = socket.socket()
-        sock.connect((self.server.server_host, self.server.server_port))
-        fobj = sock.makefile('rwb', bufsize)
-        if hasattr(fobj, '_sock'):
-            fobj._sock.settimeout(timeout)
-        else:
-            sock.settimeout(timeout)
-        if need_sock:
-            return fobj, sock
-        else:
-            return fobj
+        try:
+            sock.connect((self.server.server_host, self.server.server_port))
+            fobj = sock.makefile('rwb', bufsize)
+            if hasattr(fobj, '_sock'):
+                fobj._sock.settimeout(timeout)
+            else:
+                sock.settimeout(timeout)
+            if need_sock:
+                return fobj, sock
+            else:
+                return fobj
+        finally:
+            if not need_sock:
+                sock.close()
 
     def send_request(self, url='/', timeout=0.1, bufsize=1):
         conn = self.makefile(timeout=timeout, bufsize=bufsize)
@@ -117,21 +124,24 @@ class TestCase(greentest.TestCase):
 
     def assertNotAccepted(self):
         conn, sock = self.makefile(need_sock=True)
-        conn.write(b'GET / HTTP/1.0\r\n\r\n')
-        conn.flush()
-        result = b''
         try:
-            while True:
-                if hasattr(conn, '_sock'):
-                    data = conn._sock.recv(1)
-                else:
-                    data = sock.recv(1)
-                if not data:
-                    break
-                result += data
-        except socket.timeout:
-            assert not result, repr(result)
-            return
+            conn.write(b'GET / HTTP/1.0\r\n\r\n')
+            conn.flush()
+            result = b''
+            try:
+                while True:
+                    if hasattr(conn, '_sock'):
+                        data = conn._sock.recv(1)
+                    else:
+                        data = sock.recv(1)
+                    if not data:
+                        break
+                    result += data
+            except socket.timeout:
+                assert not result, repr(result)
+                return
+        finally:
+            sock.close()
         assert result.startswith(b'HTTP/1.0 500 Internal Server Error'), repr(result)
 
     def assertRequestSucceeded(self, timeout=0.1):

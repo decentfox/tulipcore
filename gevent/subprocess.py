@@ -88,11 +88,7 @@ __all__ = __implements__ + __imports__
 
 
 mswindows = sys.platform == 'win32'
-if mswindows:
-    import msvcrt
-else:
-    import fcntl
-    import pickle
+if not mswindows:
     from gevent import monkey
     fork = monkey.get_original('os', 'fork')
 

@@ -6,6 +6,7 @@ import sys
 import time
 import traceback
 from datetime import datetime
+from email.feedparser import FeedParser
 from http import client
 from urllib.parse import unquote
 
@@ -164,10 +165,6 @@ class Input(object):
 
 
 # adapt Python 3 HTTP headers to old API
-from http import client
-from email.feedparser import FeedParser
-
-
 class OldMessage(client.HTTPMessage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

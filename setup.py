@@ -29,7 +29,7 @@ setup(
     author_email='fantix.king@gmail.com',
     url='https://github.com/fantix/gevent3',
     packages=['gevent'],
-    install_requires=['greenlet>=0.3.2', 'asyncio'],
+    install_requires=['greenlet>=0.3.2'],
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.3",

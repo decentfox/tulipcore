@@ -75,7 +75,7 @@ def wrap_timeout(timeout, method):
 
     @wraps(method)
     def wrapped(self, *args, **kwargs):
-        with gevent.Timeout(timeout, 'test timed out', ref=False):
+        with gevent.Timeout(timeout, 'test timed out'):
             return method(self, *args, **kwargs)
 
     return wrapped
@@ -295,7 +295,7 @@ if gettotalrefcount is None:
 
 
 def test_outer_timeout_is_not_lost(self):
-    timeout = gevent.Timeout.start_new(0.001, ref=False)
+    timeout = gevent.Timeout.start_new(0.001)
     try:
         try:
             result = self.wait(timeout=1)

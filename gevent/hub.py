@@ -611,8 +611,7 @@ def iwait(objects, timeout=None):
     waiter = Waiter()
     switch = waiter.switch
     if timeout is not None:
-        timer = get_hub().loop.timer(timeout, priority=-1)
-        timer.start(waiter.switch, _NONE)
+        timer = get_hub().loop.call_later(timeout, waiter.switch, _NONE)
     try:
         count = len(objects)
         for obj in objects:
@@ -625,7 +624,7 @@ def iwait(objects, timeout=None):
             yield item
     finally:
         if timeout is not None:
-            timer.stop()
+            timer.cancel()
         for obj in objects:
             unlink = getattr(obj, 'unlink', None)
             if unlink:

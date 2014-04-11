@@ -181,8 +181,8 @@ def patch_all(socket=True, dns=True, time=True, select=True, thread=True, os=Tru
         patch_sys()
     if socket:
         patch_socket(dns=dns, aggressive=aggressive)
-    if select:
-        patch_select(aggressive=aggressive)
+    # if select:
+    #     patch_select(aggressive=aggressive)
     if ssl:
         patch_ssl()
     if httplib:

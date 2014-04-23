@@ -5,10 +5,10 @@ PYTHON ?= python${TRAVIS_PYTHON_VERSION}
 CYTHON ?= cython
 
 all:
-    echo
+	echo
 
 clean:
-    echo
+	echo
 
 doc:
 	cd doc && PYTHONPATH=.. make html

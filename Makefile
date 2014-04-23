@@ -31,6 +31,11 @@ travistest:
 	cd greenlet-* && ${PYTHON} setup.py install -q
 	${PYTHON} -c 'import greenlet; print(greenlet, greenlet.__version__)'
 
+ifeq ($(shell ${PYTHON} -c 'import sys;print(".".join(map(str, sys.version_info[:2])))'), 3.3)
+	cd asyncio* && ${PYTHON} setup.py install -q
+	${PYTHON} -c 'import asyncio'
+endif
+
 	${PYTHON} setup.py install
 
 	cd greentest && GEVENT_RESOLVER=thread ${PYTHON} testrunner.py --expected ../known_failures.txt
@@ -47,6 +52,11 @@ travis:
 
 	pip install -q --download . greenlet
 	unzip -q greenlet-*.zip
+
+ifeq ($(shell ${PYTHON} -c 'import sys;print(".".join(map(str, sys.version_info[:2])))'), 3.3)
+	pip install -q --download . asyncio
+	tar xf asyncio*.tar.gz
+endif
 
 	sudo -E make travistest
 

@@ -327,10 +327,6 @@ class Popen(SubprocessProtocol):
     def poll(self):
         return self._internal_poll()
 
-    def rawlink(self, callback):
-        self.result.rawlink(linkproxy(callback, self))
-    # XXX unlink
-
     def send_signal(self, sig):
         self._transport.send_signal(sig)
 
@@ -384,6 +380,11 @@ class Popen(SubprocessProtocol):
         #
         # POSIX methods
         #
+
+        def rawlink(self, callback):
+            self.result.rawlink(linkproxy(callback, self))
+        # XXX unlink
+
         def _internal_poll(self):
             """Check if child process has terminated.  Returns returncode
             attribute.

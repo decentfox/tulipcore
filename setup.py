@@ -16,13 +16,13 @@ def read(name, *args):
 
 setup(
     name='tulipcore',
-    version='0.1.0a1',
+    version='0.1.0a2',
     description='An alternative Gevent core loop implementation with asyncio',
     long_description=read('README.rst'),
     author='Fantix King',
     author_email='fantix.king@gmail.com',
     url='https://github.com/decentfox/tulipcore',
-    modules=['tulipcore'],
+    py_modules=['tulipcore'],
     install_requires=['gevent>=1.1'],
     classifiers=[
         "License :: OSI Approved :: MIT License",

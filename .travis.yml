@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.3"
+  - "3.4"
+env:
+  - GEVENT_LOOP=tulipcore.Loop
+install:
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.3' ]]; then pip install asyncio; fi
+  - pip install gevent
+  - python setup.py install
+script:
+  - cd gevent_tests/greentest
+  - python testrunner.py

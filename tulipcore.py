@@ -7,6 +7,81 @@ WRITE = 2
 _sys_modules = {}
 
 
+def coroutine(func):
+    import asyncio
+    import gevent
+    import gevent.queue
+    from asyncio import queues
+
+    coro_func = asyncio.coroutine(func)
+    _in = gevent.queue.Queue()
+    _out = queues.Queue()
+    loop = gevent.get_hub().loop
+
+    def _internal(args, kwargs):
+        coro = coro_func(*args, **kwargs)
+        value = exc = None
+        while True:
+            try:
+                if exc is not None:
+                    result = coro.throw(exc)
+                elif value is not None:
+                    result = coro.send(value)
+                else:
+                    result = next(coro)
+            except StopIteration as ex:
+                _out.put_nowait((None, ex))
+            else:
+                loop.increase_ref()
+                _out.put_nowait((result, None))
+            value, exc = _in.get()
+
+    @asyncio.coroutine
+    def _coroutine(*args, **kwargs):
+        gevent.spawn(_internal, args, kwargs)
+        while True:
+            value_out, exc_out = yield from _out.get()
+            if exc_out is not None:
+                raise exc_out
+            else:
+                try:
+                    value_in = yield value_out
+                except Exception as exc_in:
+                    pass
+                else:
+                    _in.put_nowait((value_in, None))
+                finally:
+                    loop.decrease_ref()
+
+    return _coroutine
+
+
+def wait_future(fut):
+    from gevent import hub
+    waiter = hub.Waiter()
+
+    def _callback(fut):
+        hub.get_hub().loop.decrease_ref()
+        if fut.exception():
+            waiter.throw(fut.exception())
+        else:
+            waiter.switch(fut.result())
+    fut.add_done_callback(_callback)
+    try:
+        hub.get_hub().loop.increase_ref()
+        return waiter.get()
+    finally:
+        fut.remove_done_callback(_callback)
+
+
+def as_future(greenlet):
+    import asyncio
+    fut = asyncio.Future()
+    greenlet.link_value(fut.set_result)
+    greenlet.link_exception(fut.set_exception)
+    return fut
+
+
 class MonkeyJail:
     def __init__(self):
         self.saved = {}

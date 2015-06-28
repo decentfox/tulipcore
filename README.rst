@@ -15,13 +15,12 @@ Install tulipcore
 Install Python 3.4 or newer, greenlet_ extension and gevent_ library. Note if
 you are running on Python 3.3, you still need to install the asyncio_ library.
 
-Please note, at this point (mid 2014) main line gevent_ is in a progress fully
-supporting Python 3. So if you want to take a try right now, you can install
-my gevent fork:
+Please note, at this point (mid 2015) only master branch of gevent_ supports
+Python 3. So if you want to have a try right now, you can install it by:
 
 .. code:: sh
 
-  pip install git+git://github.com/fantix/gevent.git
+  pip install git+git://github.com/gevent/gevent.git
 
 Install tulipcore:
 

@@ -1,0 +1,3 @@
+[submodule "gevent"]
+	path = gevent
+	url = https://github.com/gevent/gevent.git

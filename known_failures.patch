@@ -1,0 +1,27 @@
+--- known_failures.py	2015-06-28 14:33:12.270911380 +0100
++++ known_failures.py	2015-06-28 14:33:04.303661343 +0100
+@@ -107,6 +107,24 @@
+             FLAKY test__socket.py
+ '''.strip().split()
+ 
++FAILING_TESTS += '''
++    test__subprocess_poll.py
++    test_close_backend_fd.py
++    test_hub_join_timeout.py
++    test__example_udp_client.py
++    test_hub_join.py
++    test__subprocess.py
++    test_threading_2.py
++    test__destroy.py
++    test__server.py
++    test__doctests.py
++    test__core_stat.py
++    test__example_portforwarder.py
++    test__example_udp_server.py
++    test__environ.py
++    test_ares_timeout.py
++'''.strip().split()
++
+ 
+ if __name__ == '__main__':
+     import pprint

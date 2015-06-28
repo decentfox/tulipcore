@@ -119,6 +119,10 @@ class TimerWatcher(Watcher):
         self.active = False
         super()._invoke()
 
+    def again(self, callback, *args, **kwargs):
+        self.stop()
+        self.start(callback=callback, *args)
+
 
 class IoWatcher(Watcher):
     def __init__(self, loop, fd, events, ref=True, priority=None):

@@ -1,6 +1,6 @@
 --- known_failures.py	2015-06-28 14:33:12.270911380 +0100
 +++ known_failures.py	2015-06-28 14:33:04.303661343 +0100
-@@ -107,6 +107,24 @@
+@@ -107,6 +107,23 @@
              FLAKY test__socket.py
  '''.strip().split()
  
@@ -19,7 +19,6 @@
 +    test__example_portforwarder.py
 +    test__example_udp_server.py
 +    test__environ.py
-+    test_ares_timeout.py
 +'''.strip().split()
 +
  

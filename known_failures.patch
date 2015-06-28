@@ -1,6 +1,6 @@
 --- known_failures.py	2015-06-28 14:33:12.270911380 +0100
 +++ known_failures.py	2015-06-28 14:33:04.303661343 +0100
-@@ -107,6 +107,23 @@
+@@ -107,6 +107,26 @@
              FLAKY test__socket.py
  '''.strip().split()
  
@@ -20,6 +20,9 @@
 +    test__example_udp_server.py
 +    test__environ.py
 +'''.strip().split()
++
++if os.environ.get('GEVENT_FILE') == 'thread' or os.environ.get('GEVENT_RESOLVER') == 'thread':
++    FAILING_TESTS += 'FLAKY test__examples.py'
 +
  
  if __name__ == '__main__':

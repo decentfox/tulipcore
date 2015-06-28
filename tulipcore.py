@@ -179,7 +179,7 @@ class ChildWatcher(Watcher):
         super().__init__(loop, ref=ref)
         self.pid = pid
         self.watcher = self.loop.policy.get_child_watcher()
-        self.rcode = None
+        self.rstatus = None
         self.rpid = None
 
     def _start(self):
@@ -190,8 +190,15 @@ class ChildWatcher(Watcher):
         self.watcher.remove_child_handler(self.pid)
 
     def _invoke_wrapper(self, pid, retcode):
+        # asyncio messes with the status code value, go up the stack and get it
+        try:
+            outer_frame = sys._getframe(1)
+            status = outer_frame.f_locals['status']
+        finally:
+            del outer_frame
+
         self.rpid = pid
-        self.rcode = retcode
+        self.rstatus = status
         self._invoke()
 
 

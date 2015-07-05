@@ -119,6 +119,10 @@ class TimerWatcher(Watcher):
         self.active = False
         super()._invoke()
 
+    def again(self, callback, *args, **kwargs):
+        self.stop()
+        self.start(callback=callback, *args)
+
 
 class IoWatcher(Watcher):
     def __init__(self, loop, fd, events, ref=True, priority=None):
@@ -129,6 +133,8 @@ class IoWatcher(Watcher):
         self._writer = events & WRITE
 
     def _start(self, pass_events=False):
+        if pass_events:
+            self.args = (self.events,) + self.args
         if self._reader:
             self.loop.aio.add_reader(self.fd, self._invoke)
         if self._writer:
